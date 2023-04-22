@@ -1,0 +1,9 @@
+[package]
+name = "chessagon"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hext-boards = "0.1.0"
+nalgebra = "0.31.4"
+termion = "2.0.1"

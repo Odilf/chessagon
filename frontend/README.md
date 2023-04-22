@@ -1,0 +1,3 @@
+# CHESSAGON 
+
+Hexagonal chess!
