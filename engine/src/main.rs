@@ -22,11 +22,9 @@ fn main() {
         match event {
             Event::Key(Key::Ctrl('c')) => break,
             Event::Key(Key::Left) => print!("wow"),
-            _ => {}
+            _ => (),
         }
 
         stdout.flush().unwrap();
-
-		
-    }
+    } 
 }
