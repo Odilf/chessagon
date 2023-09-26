@@ -1,0 +1,5 @@
+procs:
+  bacon: "bacon test"
+  test: "cargo test"
+  site_dev: "cd site && pnpm dev"
+  site_wasm: "cd site && pnpm wasm"
