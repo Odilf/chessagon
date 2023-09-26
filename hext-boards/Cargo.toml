@@ -1,0 +1,22 @@
+[package]
+name = "hext-boards"
+version = "0.2.0"
+edition = "2021"
+authors = ["Odysseas <odysseas.maheras@gmail.com>"]
+description = "A small library that renders hexagonal boards with text on the terminal"
+readme = "README.md"
+repository = "https://github.com/Odilf/hext-boards/"
+license-file = "LICENSE"
+keywords = ["terminal", "hexagons", "ascii"]
+categories = ["command-line-utilities"]
+
+exclude = [".cargo_vcs_info.json"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glam = "0.24.1"
+
+[dev-dependencies]
+indoc = "2.0.4"
+pretty_assertions = "1.4.0"

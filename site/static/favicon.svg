@@ -1,0 +1,5 @@
+<svg viewBox="-1 -1 2 2" xmlns='http://www.w3.org/2000/svg'>
+	<polygon name="hexagon"
+		points="1,-0 0.5,-0.8660254 -0.5,-0.8660254 -1,-0 -0.5,0.8660254 0.5,0.8660254"
+		fill="hsl(250, 20%, 55%"></polygon>
+</svg>

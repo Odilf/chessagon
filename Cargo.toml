@@ -1,0 +1,8 @@
+[workspace]
+members = [
+	"engine",
+	"hext-boards",
+	"cli",
+]
+
+resolver = "2"
