@@ -6,6 +6,9 @@ use crate::{
 
 use super::{standard::Board, BoardTrait};
 
+// NOTE: Technically it would be more idomatic for this to be generic over `BoardTrait` and then delegate to `BoardTrait::piece_at`,
+// while doing the correct modifications. In practice, this is unecessary and I only have one implementor. In fact using a trait is
+// kinda useless by itself.
 pub struct PeekableBoard<'board> {
     pub(super) original: &'board Board,
     pub(super) captured_piece: Option<Piece>,
