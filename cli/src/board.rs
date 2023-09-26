@@ -27,3 +27,4 @@ pub fn to_hex(board: &Board) -> HexagonalBoard<Option<(PieceType, Color)>> {
         })
         .collect()
 }
+

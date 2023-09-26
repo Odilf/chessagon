@@ -9,45 +9,62 @@ use super::{standard::Board, BoardTrait};
 // NOTE: Technically it would be more idomatic for this to be generic over `BoardTrait` and then delegate to `BoardTrait::piece_at`,
 // while doing the correct modifications. In practice, this is unecessary and I only have one implementor. In fact using a trait is
 // kinda useless by itself.
+#[derive(Debug, Clone)]
 pub struct PeekableBoard<'board> {
     pub(super) original: &'board Board,
-    pub(super) captured_piece: Option<Piece>,
+    pub(super) capture_target: Option<Vector>,
+    pub(super) moved_piece: Piece,
     pub(super) mov: Move,
 }
 
-impl<'a> BoardTrait for PeekableBoard<'a> {
-    fn piece_at(&self, position: Vector) -> Option<&Piece> {
-        if position == self.mov.origin {
-            None
-        } else if position == self.mov.target {
-            self.captured_piece.as_ref()
-        } else {
-            self.original.piece_at(position)
+impl<'a> PeekableBoard<'a> {
+    pub fn new(original: &'a Board, mov: Move, capture_target: Option<Vector>) -> Self {
+        let mut moved_piece = original.piece_at(mov.origin).unwrap().clone();
+        moved_piece.move_to(mov.target);
+
+        PeekableBoard {
+            original,
+            capture_target,
+            moved_piece,
+            mov,
         }
     }
 }
 
-impl<'a> PeekableBoard<'a> {
-    pub fn capture_target(&self) -> Option<Vector> {
-        self.captured_piece.as_ref().map(|piece| piece.position)
-    }
+impl<'a> BoardTrait for PeekableBoard<'a> {
+    fn piece_at(&self, position: Vector) -> Option<&Piece> {
+        // `mov.origin` is always empty and `mov.target` has always the piece that was previously at `mov.origin`
+        if position == self.mov.origin {
+            return None;
+        } else if position == self.mov.target {
+            return Some(&self.moved_piece);
+        }
 
+        // if there was a piece captured at some other place, it's not there anymore
+        if Some(position) == self.capture_target {
+            return None;
+        }
+
+        // everything else is the same
+        self.original.piece_at(position)
+    }
+}
+
+impl<'a> PeekableBoard<'a> {
     fn pieces(&self) -> impl Iterator<Item = &Piece> {
         self.original
             .pieces
             .iter()
-            // remove the piece that moved
-            .filter(move |piece| piece.position != self.mov.origin)
-            // replace the captured piece if there is one
-            .map(|piece| {
-                if let Some(captured_piece) = &self.captured_piece {
-                    if piece.position == captured_piece.position {
-                        return captured_piece;
-                    }
-                }
-
-                piece
+            // Remove all pieces that are in the move (and the captured one)
+            .filter(move |piece| {
+                !(piece.position == self.mov.origin
+                    || piece.position == self.mov.target
+                    || Some(piece.position) == self.capture_target)
             })
+            // Add back in piece in `mov.target`
+            .chain(std::iter::once(
+                &self.moved_piece
+            ))
     }
 
     fn get_king(&self, color: Color) -> &Piece {
@@ -63,13 +80,6 @@ impl<'a> PeekableBoard<'a> {
     ) -> impl Iterator<Item = &Piece> {
         let king = self.get_king(color);
 
-        self.pieces()
-            .filter(move |piece| piece.color == color.opposite())
-            .filter(move |piece| {
-                let mov = Move::new(piece.position, king.position);
-
-                self.try_move_pre_pins(&mov, color.opposite(), last_move.as_ref())
-                    .is_ok()
-            })
+        super::checking_pieces(self, color, last_move, king, self.pieces())
     }
 }

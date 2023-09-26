@@ -4,12 +4,10 @@
 
 <script lang="ts">
   import {
-    Board,
     Color,
     Piece,
     Vector,
     GameState,
-    Move,
     Alignment,
   } from "$engine";
   import { fade } from "svelte/transition";
@@ -56,6 +54,10 @@
       : false
   );
 
+  $: if (game.is_checkmate()) {
+    alert("Checkmate!")
+  }
+
   const try_move = (from: Vector, to: Vector) => {
     try {
       game.try_move(from, to);
@@ -66,8 +68,6 @@
     }
   };
 </script>
-
-{JSON.stringify(selected)}
 
 <!-- 20x20 box, centered at 0 -->
 <svg viewBox="-10 -10 20 20">

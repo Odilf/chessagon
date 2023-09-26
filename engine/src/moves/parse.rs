@@ -20,11 +20,11 @@ peg::parser! {
             { Vector::new(x, y) }
 
         rule algebraic_absolute() -> Move
-            = from:vector() __ "to" __ to:vector()
+            = __ from:vector() __ "to" __ to:vector() __
             { Move::new(from, to) }
 
         rule algebraic_relative() -> Move
-            = from:vector() __ "by" __ delta:vector()
+            = __ from:vector() __ "by" __ delta:vector() __
             { Move::new(from, from + delta) }
 
         pub rule algebraic() -> Move =

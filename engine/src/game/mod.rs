@@ -1,3 +1,6 @@
+pub mod status;
+mod test;
+
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
@@ -5,7 +8,7 @@ use crate::{
     board::{standard::Board, BoardTraitMut},
     moves::{CheckedMove, IllegalMove, Move},
     piece::{Color, Piece},
-    vector::Vector,
+    vector::Vector, game::status::Status,
 };
 
 #[cfg_attr(feature = "wasm", wasm_bindgen(getter_with_clone))]
@@ -52,6 +55,14 @@ impl GameState {
             _ => unreachable!(),
         }
     }
+
+    pub fn is_checkmate(&self) -> bool {
+        matches!(self.status(), Status::Checkmate)
+    }
+
+    pub fn is_draw(&self) -> bool {
+        matches!(self.status(), Status::Draw(_))
+    }
 }
 
 impl GameState {
@@ -73,5 +84,9 @@ impl GameState {
 
     pub fn can_move(&mut self, mov: impl Into<Move>) -> bool {
         self.check_move(mov).is_ok()
+    }
+
+    pub fn status(&self) -> status::Status {
+        self.board.status(self.current_color(), self.moves.last().copied())
     }
 }

@@ -118,7 +118,7 @@ pub trait BoardTraitMut: BoardTrait {
     /// Behind the scenes it mostly references the original board while keeping
     /// TODO: finish writing docs
     fn peek(
-        &mut self,
+        &self,
         mov: &Move,
         player_color: Color,
         last_move: Option<&Move>,
@@ -126,7 +126,7 @@ pub trait BoardTraitMut: BoardTrait {
 
     /// Determines whether a move is legal, and returns the position of the captured piece if it is.
     fn check_move(
-        &mut self,
+        &self,
         mov: Move,
         player_color: Color,
         last_move: Option<&Move>,
@@ -149,7 +149,7 @@ pub trait BoardTraitMut: BoardTrait {
 
         Ok(CheckedMove {
             mov,
-            capture_target: peeked_board.capture_target(),
+            capture_target: peeked_board.capture_target,
         })
     }
 
@@ -186,19 +186,7 @@ pub const SIZE: i32 = 5;
 
 // TODO: Make const
 pub fn positions() -> Lazy<Vec<Vector>> {
-    Lazy::new(|| {
-        let mut output = Vec::with_capacity(SIZE.pow(2) as usize);
-
-        for x in -SIZE..=SIZE {
-            for y in -SIZE..=SIZE {
-                if x.abs_diff(y) as i32 <= SIZE {
-                    output.push(Vector::new(x, y));
-                }
-            }
-        }
-
-        output
-    })
+    Lazy::new(|| position_iter().collect())
 }
 
 fn generate_board_pieces() -> Vec<Piece> {
@@ -244,4 +232,25 @@ fn generate_board_pieces() -> Vec<Piece> {
     insert(4, 5, Black, King);
 
     pieces
+}
+
+fn checking_pieces<'a>(
+    board: &'a impl BoardTrait,
+    color: Color,
+    last_move: Option<Move>,
+    king: &'a Piece,
+    pieces: impl Iterator<Item = &'a Piece>,
+) -> impl Iterator<Item = &'a Piece> + {
+    pieces
+        .filter(move |piece| piece.color == color.opposite())
+        .filter(move |piece| {
+            let mov = Move::new(piece.position, king.position);
+
+            board.try_move_pre_pins(&mov, color.opposite(), last_move.as_ref())
+                .is_ok()
+        })
+}
+
+pub fn position_iter() -> impl Iterator<Item = Vector> {
+    (-5..5).flat_map(|x| (-5..5).map(move |y| Vector::new(x, y)))
 }
