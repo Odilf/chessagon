@@ -1,5 +1,5 @@
 use chessagon::{
-    board::Board,
+    board::{standard::Board, self, BoardTrait},
     piece::{Color, PieceType},
 };
 use glam::IVec2;
@@ -15,13 +15,13 @@ pub fn render_board(board: &Board) -> String {
 }
 
 pub fn to_hex(board: &Board) -> HexagonalBoard<Option<(PieceType, Color)>> {
-    Board::positions()
+    board::positions()
         .iter()
         .map(|position| {
             (
                 IVec2::new(position.x, position.y),
                 board
-                    .piece_at(position)
+                    .piece_at(*position)
                     .map(|piece| (piece.typ, piece.color)),
             )
         })

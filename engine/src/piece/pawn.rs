@@ -1,5 +1,5 @@
 use crate::{
-    board::Board,
+    board::BoardTrait,
     moves::{out_of_reach_helper, IllegalMove, Move},
     vector::Vector,
 };
@@ -11,7 +11,7 @@ out_of_reach_helper!(PieceType::Pawn);
 pub fn try_move(
     mov: &Move,
     color: Color,
-    board: &Board,
+    board: &impl BoardTrait,
     last_move: Option<&Move>,
 ) -> Result<Option<Vector>, IllegalMove> {
     let max_vertical = if is_starting_position(&mov.origin, color) {
@@ -27,9 +27,9 @@ pub fn try_move(
             return match board.check_for_blockers(mov, Vector::VERTICAL.normalized(color), color) {
                 Ok(None) => Ok(None),
                 Ok(Some(_)) => Err(IllegalMove::Blocked(
-                    board.piece_at(&mov.origin).unwrap().clone(), 
+                    board.piece_at(mov.origin).unwrap().clone(), 
                     mov.target, 
-                    board.piece_at(&mov.target).unwrap().clone(),
+                    board.piece_at(mov.target).unwrap().clone(),
                 )),
                 Err(err) => Err(err),
             }
@@ -65,6 +65,6 @@ pub fn is_starting_position(position: &Vector, color: Color) -> bool {
         .symmetric_condition(|(x, y)| x == -1 && y <= -1)
 }
 
-pub fn last_move_enables_en_passant(last_move: &Move, board: &Board) -> bool {
+pub fn last_move_enables_en_passant(last_move: &Move, board: &impl BoardTrait) -> bool {
     todo!()
 }

@@ -19,6 +19,12 @@ pub struct Move {
     pub target: Vector,
 }
 
+/// A move that is checked to be legal. 
+pub struct CheckedMove {
+    pub mov: Move,
+    pub capture_target: Option<Vector>,
+}
+
 #[cfg(feature = "wasm")]
 #[wasm_bindgen]
 impl Move {

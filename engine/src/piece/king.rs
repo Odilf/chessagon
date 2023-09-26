@@ -1,5 +1,5 @@
 use crate::{
-    board::Board,
+    board::BoardTrait,
     moves::{out_of_reach_helper, IllegalMove, Move},
     vector::Vector,
 };
@@ -8,7 +8,7 @@ use super::{Color, PieceType};
 
 out_of_reach_helper!(PieceType::King);
 
-pub fn try_move(mov: &Move, color: Color, board: &Board) -> Result<Option<Vector>, IllegalMove> {
+pub fn try_move(mov: &Move, color: Color, board: &impl BoardTrait) -> Result<Option<Vector>, IllegalMove> {
     // This is kind of cryptic but it actually works. There's probably a more idiomatic way to do
     // this, by having notions of how much you've moved in rook and bishop strides and assert that
     // you've moved exactly one of them, but I doubt it would be more efficient and it's not clear

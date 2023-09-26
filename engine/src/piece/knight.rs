@@ -1,5 +1,5 @@
 use crate::{
-    board::Board,
+    board::BoardTrait,
     moves::{out_of_reach_helper, IllegalMove, Move},
     vector::Vector,
 };
@@ -8,7 +8,7 @@ use super::{Color, PieceType};
 
 out_of_reach_helper!(PieceType::Knight);
 
-pub fn try_move(mov: &Move, color: Color, board: &Board) -> Result<Option<Vector>, IllegalMove> {
+pub fn try_move(mov: &Move, color: Color, board: &impl BoardTrait) -> Result<Option<Vector>, IllegalMove> {
     let (dx, dy) = mov.delta().into();
 
     // Slightly creeptic, but it works!
