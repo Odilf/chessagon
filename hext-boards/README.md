@@ -1,4 +1,4 @@
-# hex-boards
+# hext-boards
 
 A small library that renders hexagonal boards on the terminal.
 
