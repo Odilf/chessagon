@@ -33,7 +33,18 @@ impl<'a> PeekableBoard<'a> {
         self.original
             .pieces
             .iter()
+            // remove the piece that moved
             .filter(move |piece| piece.position != self.mov.origin)
+            // replace the captured piece if there is one
+            .map(|piece| {
+                if let Some(captured_piece) = &self.captured_piece {
+                    if piece.position == captured_piece.position {
+                        return captured_piece
+                    }
+                }
+
+                piece
+            })
     }
 
     fn get_king(&self, color: Color) -> &Piece {
@@ -49,11 +60,13 @@ impl<'a> PeekableBoard<'a> {
     ) -> impl Iterator<Item = &Piece> {
         let king = self.get_king(color);
 
-        self.pieces().filter(move |piece| piece.color == color.opposite()).filter(move |piece| {
-            let mov = Move::new(piece.position, king.position);
+        self.pieces()
+            .filter(move |piece| piece.color == color.opposite())
+            .filter(move |piece| {
+                let mov = Move::new(piece.position, king.position);
 
-            self.try_move_pre_pins(&mov, color.opposite(), last_move.as_ref())
-                .is_ok()
-        })
+                self.try_move_pre_pins(&mov, color.opposite(), last_move.as_ref())
+                    .is_ok()
+            })
     }
 }
