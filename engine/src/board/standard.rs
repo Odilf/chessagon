@@ -1,6 +1,6 @@
 use crate::{
     moves::{IllegalMove, Move},
-    piece::{Color, Piece, PieceType, pawn, knight, rook, bishop, queen, king},
+    piece::{Color, Piece},
     vector::Vector,
 };
 
@@ -18,7 +18,7 @@ pub struct Board {
 impl Default for Board {
     fn default() -> Self {
         Board {
-            pieces: super::generate_board_pieces().into(),
+            pieces: super::generate_board_pieces(),
         }
     }
 }

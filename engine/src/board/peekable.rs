@@ -1,5 +1,5 @@
 use crate::{
-    moves::{Move, IllegalMove},
+    moves::Move,
     piece::{Color, Piece, PieceType},
     vector::Vector,
 };
@@ -38,8 +38,7 @@ impl<'a> PeekableBoard<'a> {
 
     fn get_king(&self, color: Color) -> &Piece {
         self.pieces()
-            .filter(|piece| piece.color == color && piece.typ == PieceType::King)
-            .next()
+            .find(|piece| piece.color == color && piece.typ == PieceType::King)
             .unwrap()
     }
 
