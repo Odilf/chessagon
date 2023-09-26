@@ -49,7 +49,7 @@ impl GameState {
         match self.moves.len() % 2 {
             0 => Color::White,
             1 => Color::Black,
-            _ => unreachable!("reeally?"),
+            _ => unreachable!(),
         }
     }
 }
@@ -57,9 +57,9 @@ impl GameState {
 impl GameState {
     pub fn try_move(&mut self, mov: impl Into<Move>) -> Result<Option<Piece>, IllegalMove> {
         let mov = mov.into();
-        let captured_piece =
-            self.board
-                .try_move(mov, self.current_color(), self.moves.last())?;
+        let captured_piece = self
+            .board
+            .try_move(mov, self.current_color(), self.moves.last())?;
 
         self.moves.push(mov);
 

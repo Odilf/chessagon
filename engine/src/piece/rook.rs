@@ -19,7 +19,11 @@ pub fn get_stride(delta: Vector) -> Option<Vector> {
     Some(output.into())
 }
 
-pub fn try_move(mov: &Move, color: Color, board: &impl BoardTrait) -> Result<Option<Vector>, IllegalMove> {
+pub fn try_move(
+    mov: &Move,
+    color: Color,
+    board: &impl BoardTrait,
+) -> Result<Option<Vector>, IllegalMove> {
     let Some(stride) = get_stride(mov.delta()) else {
         return out_of_reach(mov);
     };

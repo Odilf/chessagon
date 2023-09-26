@@ -1,5 +1,5 @@
 use chessagon::{
-    board::{standard::Board, self, BoardTrait},
+    board::{self, standard::Board, BoardTrait},
     piece::{Color, PieceType},
 };
 use glam::IVec2;

@@ -19,7 +19,7 @@ pub struct Move {
     pub target: Vector,
 }
 
-/// A move that is checked to be legal. 
+/// A move that is checked to be legal.
 pub struct CheckedMove {
     pub mov: Move,
     pub capture_target: Option<Vector>,

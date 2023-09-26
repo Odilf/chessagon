@@ -7,12 +7,12 @@ use crate::{
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
-use super::{BoardTrait, peekable::PeekableBoard, BoardTraitMut};
+use super::{peekable::PeekableBoard, BoardTrait, BoardTraitMut};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Board {
-    pub(in super) pieces: Vec<Piece>,
+    pub(super) pieces: Vec<Piece>,
 }
 
 impl Default for Board {
@@ -31,31 +31,37 @@ impl BoardTrait for Board {
 
 impl BoardTraitMut for Board {
     fn piece_at_mut(&mut self, position: Vector) -> Option<&mut Piece> {
-        self.pieces.iter_mut().find(|piece| piece.position == position)
+        self.pieces
+            .iter_mut()
+            .find(|piece| piece.position == position)
     }
 
-	fn capture(&mut self, at: &Vector) -> Option<Piece> {
+    fn capture(&mut self, at: &Vector) -> Option<Piece> {
         self.pieces
             .iter()
             .position(|piece| piece.position == *at)
             .map(|index| self.pieces.swap_remove(index))
     }
 
-	fn peek(&mut self, mov: &Move, player_color: Color, last_move: Option<&Move>) -> Result<PeekableBoard, IllegalMove> {
+    fn peek(
+        &mut self,
+        mov: &Move,
+        player_color: Color,
+        last_move: Option<&Move>,
+    ) -> Result<PeekableBoard, IllegalMove> {
         let capture_target = self.try_move_pre_pins(mov, player_color, last_move)?;
-		let captured_piece = capture_target.and_then(|target| self.piece_at(target)).cloned();
+        let captured_piece = capture_target
+            .and_then(|target| self.piece_at(target))
+            .cloned();
 
-		Ok(PeekableBoard {
-			original: self,
-			captured_piece,
-			mov: *mov,
-		})
+        Ok(PeekableBoard {
+            original: self,
+            captured_piece,
+            mov: *mov,
+        })
     }
 }
 
-
-
-    
 //     /// Returns all the pieces that are checking the player with the given color
 //     pub fn checking_pieces<'a>(&'a self, color: Color, last_move: Option<&'a Move>) -> impl Iterator<Item = &'a Piece> {
 //         let king = self.get_king(color);

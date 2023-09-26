@@ -42,7 +42,7 @@ impl<'a> PeekableBoard<'a> {
             .map(|piece| {
                 if let Some(captured_piece) = &self.captured_piece {
                     if piece.position == captured_piece.position {
-                        return captured_piece
+                        return captured_piece;
                     }
                 }
 

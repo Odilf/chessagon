@@ -6,10 +6,7 @@ use crate::{game::GameState, moves::parse};
 fn game() {
     let mut game = GameState::default();
 
-    let moves = [
-        ("-1, -1 to -1, -1", false),
-        ("-1, -1 to 0, 0", true),
-    ];
+    let moves = [("-1, -1 to -1, -1", false), ("-1, -1 to 0, 0", true)];
 
     for (mov, is_ok) in moves {
         let mov = parse::algebraic(mov).unwrap();

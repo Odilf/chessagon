@@ -27,18 +27,18 @@ pub fn try_move(
             return match board.check_for_blockers(mov, Vector::VERTICAL.normalized(color), color) {
                 Ok(None) => Ok(None),
                 Ok(Some(_)) => Err(IllegalMove::Blocked(
-                    board.piece_at(mov.origin).unwrap().clone(), 
-                    mov.target, 
+                    board.piece_at(mov.origin).unwrap().clone(),
+                    mov.target,
                     board.piece_at(mov.target).unwrap().clone(),
                 )),
                 Err(err) => Err(err),
-            }
+            };
         } else {
             return out_of_reach(mov);
         }
     }
 
-    // Diagonal captures
+    // Captures (diagonal)
     if delta_normalized.symmetric_condition(|v| v == (1, 0)) {
         if let capture_target @ Ok(Some(_)) = board.check_for_blockers(mov, mov.delta(), color) {
             return capture_target;

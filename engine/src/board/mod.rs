@@ -113,11 +113,16 @@ pub trait BoardTraitMut: BoardTrait {
     fn capture(&mut self, at: &Vector) -> Option<Piece>;
 
     /// Returns a peek at the board after the move has been made. This is made so that you can get a peek at the board
-    /// without needing a mutable reference to the original, nor cloning. 
-    /// 
-    /// Behind the scenes it mostly references the original board while keeping 
-    /// TODO: finish writing docs 
-    fn peek(&mut self, mov: &Move, player_color: Color, last_move: Option<&Move>) -> Result<PeekableBoard, IllegalMove>;
+    /// without needing a mutable reference to the original, nor cloning.
+    ///
+    /// Behind the scenes it mostly references the original board while keeping
+    /// TODO: finish writing docs
+    fn peek(
+        &mut self,
+        mov: &Move,
+        player_color: Color,
+        last_move: Option<&Move>,
+    ) -> Result<PeekableBoard, IllegalMove>;
 
     /// Determines whether a move is legal, and returns the position of the captured piece if it is.
     fn check_move(
