@@ -29,7 +29,7 @@
     <p>Logged in with email {form?.data.user?.email}</p>
   {/if}
 
-  <p> {JSON.stringify(data.session)}</p>
+  <p>{JSON.stringify(data.session)}</p>
 </main>
 
 <style>

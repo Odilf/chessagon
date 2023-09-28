@@ -1,13 +1,14 @@
 <script>
+  import Title from "./Title.svelte";
+
   export let data;
 </script>
 
 <main>
-  <h1>Chessagon</h1>
-  <h2>Hexagonal chess!</h2>
+  <Title />
 
   {#if data.session?.user}
-    <p> Welcome, {data.session?.user.email}</p>
+    <p>Welcome, {data.session?.user.email}</p>
   {:else}
     <p>You're not logged in yet</p>
     <div>
@@ -33,11 +34,6 @@
     justify-content: space-evenly;
     align-items: center;
     gap: 1em;
-  }
-
-  h1 {
-    margin-block: 0;
-    font-size: 7em;
   }
 
   h2 {

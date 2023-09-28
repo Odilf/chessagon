@@ -45,12 +45,12 @@
 
 <!-- Negating the y cord seems like a slight bodge -->
 <image
-on:click|stopPropagation
-class="piece {Color[piece.color]}"
-x={coord.x - size / 2}
-y={-coord.y - size / 2}
-width={size}
-{href}
+  on:click|stopPropagation
+  class="piece {Color[piece.color]}"
+  x={coord.x - size / 2}
+  y={-coord.y - size / 2}
+  width={size}
+  {href}
 />
 
 <!-- <button on:click class="piece">

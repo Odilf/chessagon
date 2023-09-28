@@ -3,13 +3,7 @@
 </script>
 
 <script lang="ts">
-  import {
-    Color,
-    Piece,
-    Vector,
-    GameState,
-    Alignment,
-  } from "$engine";
+  import { Color, Piece, Vector, GameState, Alignment } from "$engine";
   import { fade } from "svelte/transition";
   import PieceComponent from "./Piece.svelte";
   import Tile from "./Tile.svelte";
@@ -51,11 +45,11 @@
     selected
       ? game.can_move(selected.position, position) ||
         selected.position.toString() == position.toString()
-      : false
+      : false,
   );
 
   $: if (game.is_checkmate()) {
-    alert("Checkmate!")
+    alert("Checkmate!");
   }
 
   const try_move = (from: Vector, to: Vector) => {
@@ -82,7 +76,7 @@
       {@const duration = selected
         ? Math.sqrt(
             (selected.position.x - position.x) ** 2 +
-              (selected.position.x - position.x) ** 2
+              (selected.position.x - position.x) ** 2,
           ) *
             20 +
           20

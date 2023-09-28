@@ -1,12 +1,12 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import topLevelAwait from 'vite-plugin-top-level-await';
-import wasm from 'vite-plugin-wasm';
-import { ViteFaviconsPlugin } from 'vite-plugin-favicon2';
+import { sveltekit } from "@sveltejs/kit/vite";
+import topLevelAwait from "vite-plugin-top-level-await";
+import wasm from "vite-plugin-wasm";
+import { ViteFaviconsPlugin } from "vite-plugin-favicon2";
 
 /** @type {import('vite').UserConfig} */
 const config = {
   plugins: [
-    ViteFaviconsPlugin('./static/favicon.svg'),
+    ViteFaviconsPlugin("./static/favicon.svg"),
     topLevelAwait(),
     wasm(),
     sveltekit(),
@@ -14,7 +14,7 @@ const config = {
 
   server: {
     fs: {
-      allow: ["./.wasm-engine"]
+      allow: ["./.wasm-engine"],
     },
   },
 };
