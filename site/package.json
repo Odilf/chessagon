@@ -5,6 +5,7 @@
     "wasm-once": "wasm-pack build ../engine --out-dir ../site/.wasm-engine",
     "wasm": "find ../engine/ -name '*.rs' | entr pnpm wasm-once",
     "dev": "vite dev",
+    "gen-types": "supabase gen types typescript --local > ./src/lib/db/types.ts",
     "build": "vite build",
     "package": "svelte-kit package",
     "preview": "vite preview",
@@ -29,6 +30,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@supabase/auth-helpers-sveltekit": "^0.10.3",
     "@supabase/supabase-js": "^2.36.0",
     "fosbury": "^0.0.3",
     "gun": "^0.2020.1239",
