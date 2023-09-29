@@ -27,7 +27,7 @@ export const actions = {
     });
 
     if (supabaseErr) {
-      return fail(400, { email, error: { message: supabaseErr.message } });
+      return fail(400, { email, username: 'TODO', error: { message: supabaseErr.message } });
     }
 
     return { successs: true, data };

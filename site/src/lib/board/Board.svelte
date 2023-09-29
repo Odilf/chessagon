@@ -9,6 +9,7 @@
   import Tile from "./Tile.svelte";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
+  import Svg from "$lib/utils/SVG.svelte";
 
   export let game = new GameState();
 
@@ -64,7 +65,7 @@
 </script>
 
 <!-- 20x20 box, centered at 0 -->
-<svg viewBox="-10 -10 20 20">
+<Svg>
   <g id="tiles">
     {#each positions as position}
       <Tile {position} on:click={() => (selected = null)} />
@@ -105,13 +106,9 @@
       </g>
     {/each}
   </g>
-</svg>
+</Svg>
 
 <style>
-  svg {
-    height: 95vh;
-  }
-
   #indicators {
     cursor: pointer;
     filter: hue-rotate(60deg) brightness(110%)

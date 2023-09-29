@@ -1,8 +1,16 @@
 <script lang="ts">
+  import ProfileCard from "./ProfileCard.svelte";
+
   export let data;
 </script>
 
-<main class="main-column">
-  <h1>{data.session.user.email}</h1>
-  <p>More settings to come...</p>
+<main class="main-column py-4">
+  <ProfileCard
+    username="Odilf"
+    rating={1200}
+    on:logout={() => {
+      data.supabase.auth.signOut();
+      console.log("poopop");
+    }}
+  />
 </main>

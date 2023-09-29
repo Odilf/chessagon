@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mod } from "$lib/utils";
+  import { mod } from "$lib/utils/index";
 
   import type { Vector } from "$engine";
   import { createEventDispatcher } from "svelte";
