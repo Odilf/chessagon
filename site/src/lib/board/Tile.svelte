@@ -7,6 +7,7 @@
 
   export let position: Vector;
 
+  export let flip: boolean;
   export let lightnesses = [55, 65, 75];
   export let hue = 250;
 
@@ -16,6 +17,7 @@
 
 <Hexagon
   {position}
+  {flip}
   color={{ h: hue, s: 20, l: lightnesses[modulus] }}
   on:click={() => dispatch("click", position)}
 />

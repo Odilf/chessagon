@@ -1,6 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
 
-function getAsString(formData: FormData, key: string) {
+function formDataAsString(formData: FormData, key: string) {
   const value = formData.get(key);
 
   if (typeof value === "string") {
@@ -15,19 +15,32 @@ function getAsString(formData: FormData, key: string) {
   );
 }
 
+function getData(formData: FormData) {
+  const email = formDataAsString(formData, "email");
+  const password = formDataAsString(formData, "password");
+
+  return { email, password };
+}
+
 export const actions = {
   register: async ({ request, locals: { supabase } }) => {
     const formData = await request.formData();
-    const email = getAsString(formData, "email");
-    const password = getAsString(formData, "password");
+    const { email, password } = getData(formData);
+    const username = formDataAsString(formData, "username");
 
     const { data, error: supabaseErr } = await supabase.auth.signUp({
       email,
       password,
     });
 
+    // TODO: Write the thing into the profile
+
     if (supabaseErr) {
-      return fail(400, { email, username: 'TODO', error: { message: supabaseErr.message } });
+      return fail(400, {
+        email,
+        username,
+        error: { message: supabaseErr.message },
+      });
     }
 
     return { successs: true, data };
@@ -35,11 +48,13 @@ export const actions = {
 
   login: async ({ request, locals: { supabase } }) => {
     const formData = await request.formData();
-    const email = getAsString(formData, "email");
-    const password = getAsString(formData, "password");
+    const { email, password } = getData(formData);
 
     const { data, error: supabaseErr } = await supabase.auth.signInWithPassword(
-      { email, password },
+      {
+        email,
+        password,
+      },
     );
 
     if (supabaseErr) {

@@ -1,5 +1,5 @@
 import type { SupabaseClient, Session } from "@supabase/supabase-js";
-import type { Database } from "$lib/db/types";
+import type { Database } from "$lib/db/generatedTypes";
 
 declare global {
   // See https://kit.svelte.dev/docs/types#app

@@ -1,4 +1,27 @@
-/* Write your global styles here, in PostCSS syntax */
+/* @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap'); */
+@import "./lib/fonts.postcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+:root [data-theme] {
+  --theme-font-family-base: "Atkinson Hyperlegible";
+  --theme-font-family-heading: "Atkinson Hyperlegible";
+}
+
+@layer base {
+  h1 {
+    font-weight: 700;
+  }
+}

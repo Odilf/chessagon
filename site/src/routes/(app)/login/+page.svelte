@@ -35,7 +35,7 @@
           </svg>
         </div>
         <div class="alert-message">
-          <h3 class="h3">Error while logging in: </h3>
+          <h3 class="h3">Error while logging in:</h3>
           <p>{form?.error.message}</p>
         </div>
       </aside>

@@ -5,7 +5,7 @@
     "wasm-once": "wasm-pack build ../engine --out-dir ../site/.wasm-engine",
     "wasm": "find ../engine/ -name '*.rs' | entr pnpm wasm-once",
     "dev": "vite dev",
-    "gen-types": "supabase gen types typescript --local > ./src/lib/db/types.ts",
+    "gen-types": "supabase gen types typescript --local > ./src/lib/db/generatedTypes.ts",
     "build": "vite build",
     "package": "svelte-kit package",
     "preview": "vite preview",

@@ -33,11 +33,12 @@
   import { PieceType } from "$engine";
 
   export let piece: Piece;
+  export let flip: boolean;
 
   export let size = 1.4;
   const alignment = getContext(alignmentKey) as Writable<Alignment>;
 
-  $: coord = piece.position.to_canonic($alignment);
+  $: coord = piece.position.to_canonic($alignment, flip);
 
   // @ts-ignore
   const href: string = urls[piece.color][piece.typ].toString();
@@ -46,18 +47,24 @@
 <!-- Negating the y cord seems like a slight bodge -->
 <image
   on:click|stopPropagation
+  on:keydown
+  role="button"
+  tabindex="0"
   class="piece {Color[piece.color]}"
   x={coord.x - size / 2}
   y={-coord.y - size / 2}
   width={size}
+  height={size}
   {href}
 />
-
-<!-- <button on:click class="piece">
-</button> -->
 
 <style>
   image {
     cursor: pointer;
+    padding: 0;
+  }
+
+  *:focus {
+    outline: none;
   }
 </style>

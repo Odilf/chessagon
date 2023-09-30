@@ -11,9 +11,9 @@
       <p>Hexagonal chess</p>
     </div>
 
-    <div class="svg">
+    <div class="svg opacity-50">
       <Svg size={new Vector(2, 2)}>
-        <Tile position={new Vector(0, 0)} />
+        <Tile position={new Vector(0, 0)} flip={false} />
       </Svg>
     </div>
   </div>

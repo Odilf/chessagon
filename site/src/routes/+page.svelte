@@ -1,21 +1,16 @@
 <script>
-  import { setContext } from "svelte";
   import Title from "./Title.svelte";
+  import { getToastStore } from "@skeletonlabs/skeleton";
 
   export let data;
 
-  import { getToastStore } from "@skeletonlabs/skeleton";
-  import { hideNavSymbol } from "./Nav.svelte";
-
   const toastStore = getToastStore();
-
-  setContext(hideNavSymbol, true);
 </script>
 
-<div class="grid place-items-center h-full">
+<main class="flex flex-col justify-center h-screen" data-sveltekit-preload-data>
   <Title />
 
-  <div class="grid grid-cols-6 gap-5 mt-8">
+  <div class="grid grid-cols-6 gap-5 mt-8 px-3 max-w-xl mx-auto">
     <a
       class="btn variant-filled col-span-3 px-8"
       href={data.session ? "/play" : ""}
@@ -34,20 +29,24 @@
       Play
     </a>
     <a class="btn variant-filled col-span-3 px-8" href="/login">
-      Login / register
+      {#if data.session}
+        Profile
+      {:else}
+        Login / register
+      {/if}
     </a>
 
+    <a class="btn variant-ghost-primary col-span-2 px-8" href="/how-to-play">
+      How to play
+    </a>
     <a class="btn variant-ghost-primary col-span-2 px-8" href="/about">
       About
     </a>
     <a class="btn variant-ghost-primary col-span-2 px-8" href="/explore">
       Explore
     </a>
-    <a class="btn variant-ghost-primary col-span-2 px-8" href="/how-to-play">
-      How to play
-    </a>
   </div>
-</div>
+</main>
 
 <style>
   .disabled {

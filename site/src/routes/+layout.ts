@@ -5,7 +5,7 @@ import {
   PUBLIC_SUPABASE_URL_DEV,
 } from "$env/static/public";
 import { createSupabaseLoadClient } from "@supabase/auth-helpers-sveltekit";
-import type { Database } from "$lib/db/types";
+import type { Database } from "$lib/db/generatedTypes";
 import { dev } from "$app/environment";
 
 export const load = async ({ fetch, data, depends }) => {
@@ -18,14 +18,9 @@ export const load = async ({ fetch, data, depends }) => {
     serverSession: data.session,
   });
 
-  // TODO: What the hell
-  // const {
-  //   data: { session },
-  // } = await supabase.auth.getSession()
-
-  const session = data.session;
-
-  // const huh = await parent();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   return { session, supabase };
 };

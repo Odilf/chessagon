@@ -1,36 +1,15 @@
-<script context="module" lang="ts">
-  export const hideNavSymbol = Symbol("showNav");
-</script>
-
 <script>
   import { page } from "$app/stores";
   import { AppBar } from "@skeletonlabs/skeleton";
-  import { getContext } from "svelte";
 
-  const hideNav = getContext(hideNavSymbol);
+  // paths where the nav should be hidden
+  const hideNavPaths = ["/"];
 
-  console.log("hideNav", hideNav);
-
-  // $: rawSegments = $page.url.pathname.split("/");
-  // $: segments = [
-  //   {
-  //     name: "home",
-  //     url: "/",
-  //   },
-
-  //   ...rawSegments
-  //     .filter((segment) => segment !== "")
-  //     .map((segment, i) => {
-  //       return {
-  //         name: segment,
-  //         url: rawSegments.slice(0, i + 1).join("/"),
-  //       };
-  //     }),
-  // ];
+  $: hidden = hideNavPaths.includes($page.url.pathname);
 </script>
 
-<AppBar class="w-screen {hideNav && 'hidden'}">
-  <button slot="lead" on:click={() => history.back()}>
+<AppBar class="w-screen {hidden && 'hidden'}">
+  <a slot="lead" href="../">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -45,11 +24,11 @@
         d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"
       />
     </svg>
-  </button>
+  </a>
 
-  <h1 class="font-thin">{$page.url.pathname.split("/").at(-1)}</h1>
+  <h1 class="font-normal">{$page.url.pathname.split("/").at(-1)}</h1>
   <svelte:fragment slot="trail">
-    <a class="anchor" href="/profile">
+    <a class="btn variant-ghost-primary" href="/profile">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

@@ -1,10 +1,13 @@
 <script lang="ts">
-  import "../app.postcss";
-  import "../styles.css";
   import { invalidate } from "$app/navigation";
+  import {
+    Modal,
+    Toast,
+    autoModeWatcher,
+    initializeStores,
+  } from "@skeletonlabs/skeleton";
   import { onMount } from "svelte";
-
-  import { AppBar, Toast, autoModeWatcher } from "@skeletonlabs/skeleton";
+  import "../app.postcss";
 
   export let data;
 
@@ -14,11 +17,8 @@
   onMount(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, _session) => {
-      console.log("auth changed", event, _session);
-      console.log("current", session);
-
-      if (_session?.expires_at !== session?.expires_at) {
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (newSession?.expires_at !== session?.expires_at) {
         invalidate("supabase:auth");
       }
     });
@@ -26,35 +26,30 @@
     return () => subscription.unsubscribe();
   });
 
-  import { initializeStores } from '@skeletonlabs/skeleton';
-  import { page } from "$app/stores";
-  import Nav from "./Nav.svelte";
-
   initializeStores();
 </script>
 
 <svelte:head>
   {@html `<script>${autoModeWatcher.toString()} autoModeWatcher();</script>`}
+
+  <link
+    rel="preload"
+    href="/fonts/AtkinsonHyperlegible-Regular.ttf"
+    as="font"
+    type="font/ttf"
+    crossorigin="anonymous"
+  />
+
+  <link
+    rel="preload"
+    href="/fonts/AtkinsonHyperlegible-Bold.ttf"
+    as="font"
+    type="font/ttf"
+    crossorigin="anonymous"
+  />
 </svelte:head>
 
 <Toast />
+<Modal />
 
-<main class="px-2 max-w-xl mx-auto">
-  <Nav />
-
-  <slot />
-</main>
-
-<style>
-  main {
-    height: 100dvh;
-    width: 100vw;
-
-    display: flex;
-    flex-direction: column;
-    /* padding-top: 2em; */
-    padding-bottom: 5em;
-    /* justify-content: center; */
-    align-items: center;
-  }
-</style>
+<slot />

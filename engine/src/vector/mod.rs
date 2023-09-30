@@ -22,9 +22,10 @@ impl Vector {
         Self { x, y }
     }
 
-    pub fn to_canonic(&self, alignment: Alignment) -> CanonicalVector {
+    pub fn to_canonic(&self, alignment: Alignment, flip: bool) -> CanonicalVector {
         let [b1, b2] = alignment.basis();
-        b1 * self.x as f32 + b2 * self.y as f32
+        let f = if flip { -1.0 } else { 1.0 };
+        b1 * self.x as f32 * f + b2 * self.y as f32 * f
     }
 
     pub fn normalized(&self, color: Color) -> Self {
@@ -168,7 +169,7 @@ impl CanonicalVector {
 
         points
             .map(|point| point * radius + *self)
-            .map(|point| format!("{},{}", point.x, -point.y)) // y is negated cause svg has positive towards bottom
+            .map(|point| format!("{},{}", point.x, -point.y )) // y is negated cause svg has positive towards bottom
             .join(" ")
     }
 }

@@ -1,20 +1,7 @@
 <script context="module">
   export const alignmentKey = Symbol("alignment");
-</script>
 
-<script lang="ts">
-  import { Color, Piece, Vector, GameState, Alignment } from "$engine";
-  import { fade } from "svelte/transition";
-  import PieceComponent from "./Piece.svelte";
-  import Tile from "./Tile.svelte";
-  import { setContext } from "svelte";
-  import { writable } from "svelte/store";
-  import Svg from "$lib/utils/SVG.svelte";
-
-  export let game = new GameState();
-
-  setContext(alignmentKey, writable(Alignment.Horizontal));
-
+  // TODO: Get this from rust, when new version of wasm-bindgen is out
   const getPositions = () => {
     let output = [];
 
@@ -29,9 +16,45 @@
     return output;
   };
 
-  const positions = getPositions();
+  export const positions = getPositions();
+</script>
 
-  let selected: Piece | null = null;
+<script lang="ts">
+  import { Alignment, Board, Color, Piece, Vector, should_flip } from "$engine";
+  import Svg from "$lib/utils/SVG.svelte";
+  import { createEventDispatcher, setContext } from "svelte";
+  import { writable } from "svelte/store";
+  import { fade } from "svelte/transition";
+  import PieceComponent from "./Piece.svelte";
+  import Tile from "./Tile.svelte";
+
+  export let board = new Board();
+  export let highlightPositions: Vector[] = [];
+  export let selected: Piece | null = null;
+  export let playerColor: Color;
+
+  $: flip = should_flip(playerColor);
+
+  export let highlightEasing = (target: Vector) => {
+    const canonic = [
+      (selected?.position ?? new Vector(0, 0)).to_canonic(Alignment.Horizontal, flip),
+      target.to_canonic(Alignment.Horizontal, flip),
+    ];
+    const distance = Math.sqrt(
+      (canonic[0].x - canonic[1].x) ** 2 + (canonic[0].y - canonic[1].y) ** 2
+    );
+    return [
+      distance * 10 + 50,
+      distance * 5
+    ];
+  };
+
+  setContext(alignmentKey, writable(Alignment.Horizontal));
+
+  const dispatch = createEventDispatcher<{
+    move: { from: Vector; to: Vector };
+    selection: { piece: Piece | null };
+  }>();
 
   // Select and deselects piece
   function select(piece: Piece | null) {
@@ -40,67 +63,53 @@
     } else {
       selected = piece;
     }
+
+    dispatch("selection", { piece });
   }
 
-  $: highlighted = positions.filter((position) =>
-    selected
-      ? game.can_move(selected.position, position) ||
-        selected.position.toString() == position.toString()
-      : false,
-  );
-
-  $: if (game.is_checkmate()) {
-    alert("Checkmate!");
-  }
-
-  const try_move = (from: Vector, to: Vector) => {
-    try {
-      game.try_move(from, to);
-      game = game;
-      selected = null;
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const piecesOf = (color: Color) =>
+    positions
+      .filter((p) => board.piece_at(p)?.color === color)
+      .map((p) => board.piece_at(p));
 </script>
 
-<!-- 20x20 box, centered at 0 -->
-<Svg>
+<!-- @component
+A completely inhert board. This means that it does not have any logic, doesn't highlight, and
+does not know about the game state. It just displays pieces.
+
+It has events for moves, but the moves may be invalid.
+ -->
+
+<Svg size={new Vector(17, 19)}>
   <g id="tiles">
     {#each positions as position}
-      <Tile {position} on:click={() => (selected = null)} />
+      <Tile {flip} {position} on:click={() => (selected = null)} />
     {/each}
   </g>
 
   <g id="indicators">
-    {#each highlighted as position}
-      {@const duration = selected
-        ? Math.sqrt(
-            (selected.position.x - position.x) ** 2 +
-              (selected.position.x - position.x) ** 2,
-          ) *
-            20 +
-          20
-        : 100}
-      <g class="indicator" transition:fade={{ duration }}>
-        {#key selected}
-          <Tile
-            {position}
-            on:click={() => selected && try_move(selected.position, position)}
-          />
-        {/key}
+    {#each highlightPositions as position (position)}
+      {@const [duration, delay] = highlightEasing(position)}
+      <g class="indicator" transition:fade={{ duration, delay }}>
+        <Tile
+          {flip}
+          {position}
+          on:click={() => {
+            if (selected) {
+              dispatch("move", { from: selected.position, to: position });
+            }
+          }}
+        />
       </g>
     {/each}
   </g>
 
   <g id="pieces">
     {#each [Color.White, Color.Black] as color}
-      <g class={game.current_color() == color ? "player" : "opponent"}>
-        {#each positions
-          .filter((p) => game.board.piece_at(p)?.color === color)
-          .map((p) => game.board.piece_at(p)) as piece (piece)}
+      <g class={playerColor == color ? "player" : "opponent"}>
+        {#each piecesOf(color) as piece (piece)}
           {#if piece}
-            <PieceComponent {piece} on:click={() => piece && select(piece)} />
+            <PieceComponent {flip} {piece} on:click={() => piece && select(piece)} />
           {/if}
         {/each}
       </g>

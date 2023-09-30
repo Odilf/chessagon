@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::*;
 use super::{peekable::PeekableBoard, BoardTrait, BoardTraitMut};
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
+#[cfg_attr(feature = "wasm", wasm_bindgen(inspectable))]
 pub struct Board {
     pub(super) pieces: Vec<Piece>,
 }
@@ -111,5 +111,10 @@ impl Board {
     #[wasm_bindgen(js_name = "piece_at")]
     pub fn piece_at_wasm(&self, position: &Vector) -> Option<Piece> {
         self.piece_at(*position).cloned()
+    }
+
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self::default()
     }
 }

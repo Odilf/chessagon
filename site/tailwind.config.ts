@@ -1,16 +1,16 @@
-import { join } from 'path';
-import type { Config } from 'tailwindcss';
-import forms from '@tailwindcss/forms';
-import { skeleton } from '@skeletonlabs/tw-plugin';
+import { join } from "path";
+import type { Config } from "tailwindcss";
+import forms from "@tailwindcss/forms";
+import { skeleton } from "@skeletonlabs/tw-plugin";
 
 const config = {
-  darkMode: 'media',
+  darkMode: "media",
   content: [
-    './src/**/*.{html,js,svelte,ts}',
-    join(require.resolve(
-      '@skeletonlabs/skeleton'),
-      '../**/*.{html,js,svelte,ts}'
-    )
+    "./src/**/*.{html,js,svelte,ts}",
+    join(
+      require.resolve("@skeletonlabs/skeleton"),
+      "../**/*.{html,js,svelte,ts}",
+    ),
   ],
   theme: {
     extend: {},
@@ -20,11 +20,12 @@ const config = {
     skeleton({
       themes: {
         preset: [
-          { name: "vintage", enhancements: true }
-        ]
-      }
-    })
-  ]
+          { name: "vintage", enhancements: true },
+          { name: "wintry", enhancements: true },
+        ],
+      },
+    }),
+  ],
 } satisfies Config;
 
 export default config;
