@@ -13,7 +13,7 @@
 <TabGroup>
   <Tab bind:group={tab} name="login" value="login">Log in</Tab>
   <Tab bind:group={tab} name="register" value="register">Register</Tab>
-  
+
   <svelte:fragment slot="panel">
     {#if form?.error}
       <aside class="alert variant-soft-error my-8" transition:slide>

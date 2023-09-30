@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::*;
 use super::{peekable::PeekableBoard, BoardTrait, BoardTraitMut};
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "wasm", wasm_bindgen(inspectable))]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Board {
     pub(super) pieces: Vec<Piece>,
 }

@@ -16,7 +16,6 @@
       href={data.session ? "/play" : ""}
       aria-disabled={!data.session}
       class:disabled={!data.session}
-      title="You need to be logged in to play"
       on:click={() => {
         if (!data.session) {
           toastStore.trigger({

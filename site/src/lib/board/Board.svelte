@@ -37,16 +37,16 @@
 
   export let highlightEasing = (target: Vector) => {
     const canonic = [
-      (selected?.position ?? new Vector(0, 0)).to_canonic(Alignment.Horizontal, flip),
+      (selected?.position ?? new Vector(0, 0)).to_canonic(
+        Alignment.Horizontal,
+        flip,
+      ),
       target.to_canonic(Alignment.Horizontal, flip),
     ];
     const distance = Math.sqrt(
-      (canonic[0].x - canonic[1].x) ** 2 + (canonic[0].y - canonic[1].y) ** 2
+      (canonic[0].x - canonic[1].x) ** 2 + (canonic[0].y - canonic[1].y) ** 2,
     );
-    return [
-      distance * 10 + 50,
-      distance * 5
-    ];
+    return [distance * 10 + 50, distance * 5];
   };
 
   setContext(alignmentKey, writable(Alignment.Horizontal));
@@ -67,7 +67,7 @@
     dispatch("selection", { piece });
   }
 
-  const piecesOf = (color: Color) =>
+  $: piecesOf = (color: Color) =>
     positions
       .filter((p) => board.piece_at(p)?.color === color)
       .map((p) => board.piece_at(p));
@@ -109,7 +109,11 @@ It has events for moves, but the moves may be invalid.
       <g class={playerColor == color ? "player" : "opponent"}>
         {#each piecesOf(color) as piece (piece)}
           {#if piece}
-            <PieceComponent {flip} {piece} on:click={() => piece && select(piece)} />
+            <PieceComponent
+              {flip}
+              {piece}
+              on:click={() => piece && select(piece)}
+            />
           {/if}
         {/each}
       </g>

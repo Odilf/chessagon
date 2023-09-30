@@ -21,7 +21,7 @@
         tc_minutes: timeControl.minutes,
         tc_increment: timeControl.increment,
         challenger_id: session.user.id,
-        challenger_color: color,
+        challenger_color: color ?? Math.floor(Math.random() * 2),
       })
       .select()
       .single();
@@ -40,6 +40,7 @@
         message: "Selected game is `null`",
         background: "variant-filled-error",
       });
+
       return;
     }
 

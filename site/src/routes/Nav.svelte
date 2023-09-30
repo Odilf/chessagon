@@ -1,14 +1,9 @@
 <script>
   import { page } from "$app/stores";
   import { AppBar } from "@skeletonlabs/skeleton";
-
-  // paths where the nav should be hidden
-  const hideNavPaths = ["/"];
-
-  $: hidden = hideNavPaths.includes($page.url.pathname);
 </script>
 
-<AppBar class="w-screen {hidden && 'hidden'}">
+<AppBar class="w-screen h-16 justify-center">
   <a slot="lead" href="../">
     <svg
       xmlns="http://www.w3.org/2000/svg"

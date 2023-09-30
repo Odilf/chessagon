@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { GameState, type Color, Piece, Vector } from "$engine/chessagon";
+  import type { GameState, Color, Piece, Vector } from "$engine/chessagon";
   import { createEventDispatcher } from "svelte";
   import Board, { positions } from "./Board.svelte";
 
-  export let game: GameState = new GameState();
+  export let game: GameState;
   export let playerColor: Color;
 
   let selected: Piece | null = null;
@@ -13,21 +13,29 @@
       ? selected.color === playerColor &&
         (game.can_move(selected.position, position) ||
           selected.position.toString() == position.toString()) // TODO: Uggo
-      : false
+      : false,
   );
 
   const dispath = createEventDispatcher<{
     move: { from: Vector; to: Vector };
     invalidMove: { from: Vector; to: Vector; reason: string };
+    result: "draw" | { winner: Color };
   }>();
+
+  $: if (game.is_checkmate()) {
+    dispath("result", { winner: game.current_color() });
+  } else if (game.is_draw()) {
+    dispath("result", "draw");
+  }
 </script>
 
 <Board
   {playerColor}
-  bind:board={game.board}
+  board={game.board}
   bind:selected
   {highlightPositions}
   on:move={({ detail: { from, to } }) => {
+    selected = null;
     if (game.can_move(from, to)) {
       dispath("move", { from, to });
     } else {

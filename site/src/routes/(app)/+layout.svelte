@@ -1,16 +1,34 @@
 <script>
   import Nav from "../Nav.svelte";
+
+  const navBarHeight = {
+    heightClass: "h16",
+    css: "4rem",
+  };
 </script>
 
-<main class="px-2 max-w-xl mx-auto flex flex-col items-center overflow-x-hidden">
+<main class="overflow-x-hidden">
   <Nav />
 
-  <slot />
+  <div
+    class="px-2 flex-1 mx-auto flex flex-col items-center"
+    style:--height={navBarHeight.css}
+  >
+    <slot />
+  </div>
 </main>
 
 <style>
   main {
     height: 100dvh;
     width: 100vw;
+  }
+
+  main > :global(*) {
+    --screen-without-nav: calc(100dvh - var(--height));
+  }
+
+  div {
+    height: var(--screen-without-nav);
   }
 </style>
