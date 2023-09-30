@@ -4,7 +4,6 @@
   import { slide } from "svelte/transition";
 
   export let form;
-  export let data;
 
   let tab = "login";
 </script>
@@ -14,7 +13,7 @@
 <TabGroup>
   <Tab bind:group={tab} name="login" value="login">Log in</Tab>
   <Tab bind:group={tab} name="register" value="register">Register</Tab>
-  <!-- Tab Panels --->
+  
   <svelte:fragment slot="panel">
     {#if form?.error}
       <aside class="alert variant-soft-error my-8" transition:slide>
@@ -69,9 +68,6 @@
         <button class="btn variant-form-material" formaction="?/login">
           Submit
         </button>
-        <!-- <button class="btn variant-form-material" formaction="?/register">
-          Register
-        </button> -->
       </div>
     </form>
   </svelte:fragment>
