@@ -24,7 +24,7 @@
   import Svg from "$lib/utils/SVG.svelte";
   import { createEventDispatcher, setContext } from "svelte";
   import { writable } from "svelte/store";
-  import { fade } from "svelte/transition";
+  import { fade, scale } from "svelte/transition";
   import PieceComponent from "./Piece.svelte";
   import Tile from "./Tile.svelte";
 
@@ -43,9 +43,11 @@
       ),
       target.to_canonic(Alignment.Horizontal, flip),
     ];
+
     const distance = Math.sqrt(
       (canonic[0].x - canonic[1].x) ** 2 + (canonic[0].y - canonic[1].y) ** 2,
     );
+
     return [distance * 10 + 50, distance * 5];
   };
 
@@ -91,6 +93,7 @@ It has events for moves, but the moves may be invalid.
     {#each highlightPositions as position (position)}
       {@const [duration, delay] = highlightEasing(position)}
       <g class="indicator" transition:fade={{ duration, delay }}>
+        <!-- <g class="indicator" transition:scale={{ duration, delay }}> -->
         <Tile
           {flip}
           {position}

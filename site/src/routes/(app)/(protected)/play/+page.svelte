@@ -50,7 +50,7 @@
   async function joinGame(gameId: string) {
     const { error } = await supabase
       .from("live_games")
-      .update({ acceptant_id: session.user.id })
+      .update({ acceptant_id: session.user.id, started_at: new Date().toISOString() })
       .eq("id", gameId);
 
     if (error) {

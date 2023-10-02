@@ -2,6 +2,11 @@
   import type { GameState, Color, Piece, Vector } from "$engine/chessagon";
   import { createEventDispatcher } from "svelte";
   import Board, { positions } from "./Board.svelte";
+  import {
+    getStatusFromCode,
+    type DrawReason,
+    type WinReason,
+  } from "$lib/game/status";
 
   export let game: GameState;
   export let playerColor: Color;
@@ -19,13 +24,16 @@
   const dispath = createEventDispatcher<{
     move: { from: Vector; to: Vector };
     invalidMove: { from: Vector; to: Vector; reason: string };
-    result: "draw" | { winner: Color };
+    result:
+      | { winner: Color; reason: WinReason }
+      | { winner: null; reason: DrawReason };
   }>();
 
-  $: if (game.is_checkmate()) {
-    dispath("result", { winner: game.current_color() });
-  } else if (game.is_draw()) {
-    dispath("result", "draw");
+  $: status = getStatusFromCode(game.status_code());
+  $: if (!status?.inProgress) {
+    if (status?.winner) {
+      dispath("result", { winner: status.winner, reason: status.reason });
+    }
   }
 </script>
 

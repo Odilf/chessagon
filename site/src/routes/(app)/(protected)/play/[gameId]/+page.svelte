@@ -56,6 +56,8 @@
       }
 
       game.board = game.board;
+    } else {
+      console.log(response)
     }
   }
 
@@ -103,10 +105,10 @@
         {game}
         playerColor={data.game.color}
         on:result={({ detail }) => {
-          if (detail === "draw") {
-            console.log("Draw");
-          } else {
+          if (detail.winner) {
             console.log(Color[detail.winner]);
+          } else {
+            console.log("Draw");
           }
         }}
       />

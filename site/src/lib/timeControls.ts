@@ -21,6 +21,16 @@ export class TimeControl {
     const value = Math.round(this.totalTime(gameLenth) * 10) / 10;
     return `${value}m`;
   }
+
+  /**
+   * Returns the time remaining, in seconds.
+   */
+  public timeRemaining(timeStarted: Date, moveNumber: number, currentTime: Date = new Date()) {
+    const timeElapsed = (currentTime.getTime() - timeStarted.getTime()) / 1000;
+    const timeRemaining = this.minutes * 60 - timeElapsed + Math.floor(moveNumber / 2) * this.increment;
+
+    return timeRemaining;
+  }
 }
 
 export const timeControls: readonly TimeControl[] = [

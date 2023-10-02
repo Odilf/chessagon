@@ -1,4 +1,4 @@
-import { GameState, Vector } from "$engine/chessagon";
+import { Vector } from "$engine/chessagon";
 import type { Database } from "$lib/db/generatedTypes.js";
 import { handleSupabaseResponse } from "$lib/db/utils";
 import { TimeControl } from "$lib/timeControls.js";
@@ -21,7 +21,7 @@ export async function _getMoves(
     const origin = new Vector(move.origin_x, move.origin_y);
     const target = new Vector(move.target_x, move.target_y);
 
-    return { origin, target };
+    return { origin, target, created_at: new Date(move.created_at).getTime() / 1000 };
   });
 }
 
