@@ -8,7 +8,7 @@ use crate::{
     board::{standard::Board, BoardTraitMut},
     moves::{CheckedMove, IllegalMove, Move},
     piece::{Color, Piece},
-    vector::Vector, game::status::Status,
+    vector::Vector,
 };
 
 #[cfg_attr(feature = "wasm", wasm_bindgen(getter_with_clone))]
@@ -56,12 +56,8 @@ impl GameState {
         }
     }
 
-    pub fn is_checkmate(&self) -> bool {
-        matches!(self.status(), Status::Checkmate)
-    }
-
-    pub fn is_draw(&self) -> bool {
-        matches!(self.status(), Status::Draw(_))
+    pub fn status_code(&self) -> i32 {
+        self.status().code()
     }
 }
 

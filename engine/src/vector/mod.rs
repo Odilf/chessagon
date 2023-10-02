@@ -24,8 +24,10 @@ impl Vector {
 
     pub fn to_canonic(&self, alignment: Alignment, flip: bool) -> CanonicalVector {
         let [b1, b2] = alignment.basis();
-        let f = if flip { -1.0 } else { 1.0 };
-        b1 * self.x as f32 * f + b2 * self.y as f32 * f
+        match flip {
+            false => b1 * self.x as f32 + b2 * self.y as f32,
+            true => b1 * -self.y as f32 - b2 * self.x as f32, // TODO: Should this rotate or mirror?
+        }
     }
 
     pub fn normalized(&self, color: Color) -> Self {

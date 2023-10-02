@@ -65,7 +65,7 @@ impl Board {
             if self.checking_pieces(color, last_move).next().is_none() {
                 Status::Draw(DrawReason::Stalemate)
             } else {
-                Status::Checkmate
+                Status::Checkmate(color.opposite())
             }
         } else {
             Status::InProgress

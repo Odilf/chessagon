@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::{game::status::Status, moves::parse};
+use crate::{game::status::Status, moves::parse, piece::Color};
 
 use super::GameState;
 
@@ -35,5 +35,5 @@ fn checkmate() {
 		let mov = parse::algebraic(line).unwrap();
 		game.try_move(mov).unwrap();
 	}
-	assert_eq!(game.status(), Status::Checkmate);
+	assert_eq!(game.status(), Status::Checkmate(Color::Black));
 }
