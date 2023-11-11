@@ -22,11 +22,7 @@ export const games = sqliteTable("games", {
   id: text("id").primaryKey(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .$default(() => {
-      const date = new Date();
-      console.log(date);
-      return date
-    }),
+    .$default(() => new Date()),
   result_code: integer("result_code").notNull().default(0),
   white: text("white").references(() => users.id, { onDelete: "set null" }),
   black: text("black").references(() => users.id, { onDelete: "set null" }),
