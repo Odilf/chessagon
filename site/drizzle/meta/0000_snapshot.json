@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "3d1ad6eb-4e5e-482d-abd1-dc36e5acf988",
+  "id": "f4dc4b4e-0285-42ce-89fe-32c3519a0605",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user_key": {
@@ -31,10 +31,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_key_user_id_user_id_fk": {
-          "name": "user_key_user_id_user_id_fk",
+        "user_key_user_id_users_id_fk": {
+          "name": "user_key_user_id_users_id_fk",
           "tableFrom": "user_key",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -82,10 +82,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_session_user_id_user_id_fk": {
-          "name": "user_session_user_id_user_id_fk",
+        "user_session_user_id_users_id_fk": {
+          "name": "user_session_user_id_users_id_fk",
           "tableFrom": "user_session",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -99,8 +99,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "user": {
-      "name": "user",
+    "users": {
+      "name": "users",
       "columns": {
         "id": {
           "name": "id",
@@ -115,6 +115,21 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 800
         }
       },
       "indexes": {},
@@ -122,11 +137,18 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "game": {
-      "name": "game",
+    "games": {
+      "name": "games",
       "columns": {
         "id": {
           "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -142,14 +164,14 @@
         },
         "white": {
           "name": "white",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "black": {
           "name": "black",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -171,34 +193,113 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "game_white_user_id_fk": {
-          "name": "game_white_user_id_fk",
-          "tableFrom": "game",
-          "tableTo": "user",
+        "games_white_users_id_fk": {
+          "name": "games_white_users_id_fk",
+          "tableFrom": "games",
+          "tableTo": "users",
           "columnsFrom": [
             "white"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "game_black_user_id_fk": {
-          "name": "game_black_user_id_fk",
-          "tableFrom": "game",
-          "tableTo": "user",
+        "games_black_users_id_fk": {
+          "name": "games_black_users_id_fk",
+          "tableFrom": "games",
+          "tableTo": "users",
           "columnsFrom": [
             "black"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "moves": {
+      "name": "moves",
+      "columns": {
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "game_id": {
+          "name": "game_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "from_x": {
+          "name": "from_x",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "from_y": {
+          "name": "from_y",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_x": {
+          "name": "to_x",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_y": {
+          "name": "to_y",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "moves_game_id_games_id_fk": {
+          "name": "moves_game_id_games_id_fk",
+          "tableFrom": "moves",
+          "tableTo": "games",
+          "columnsFrom": [
+            "game_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "moves_index_game_id_pk": {
+          "columns": [
+            "game_id",
+            "index"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     }
   },

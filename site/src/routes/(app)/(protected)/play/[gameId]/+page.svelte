@@ -6,8 +6,12 @@
   // import { handleSupabaseResponse } from "$lib/db/utils.js";
   import { onDestroy } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
+  import { enhance } from "$app/forms";
 
   export let data;
+
+  $: console.log(data);
+  
 
   let game = new GameState();
 
@@ -21,17 +25,6 @@
   //     }
   //   }
   // }
-
-  async function cancelGame() {
-  //   const response = await data.supabase
-  //     .from("live_games")
-  //     .delete()
-  //     .eq("id", data.game.id);
-
-  //   handleSupabaseResponse(response);
-
-  // invalidate(`game:${data.game.id}`);
-  }
 
   async function handleMove({
     detail: { from, to },
@@ -119,7 +112,9 @@
     </div>
   </div>
 {:else}
-  <WaitingForPlayer timeControl={data.game.timeControl} challenger={{ color: Color.Black }} on:cancel={cancelGame} />
+  <form method="post" action="?/cancelGame" use:enhance>
+    <WaitingForPlayer timeControl={data.game.timeControl} challenger={{ color: Color.Black }} />
+  </form>
 {/if}
 
 <style lang="postcss">

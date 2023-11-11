@@ -1,1 +1,0 @@
-ALTER TABLE user ADD `rating` integer NOT NULL;

@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 
-export const load = async ({ fetch, data, depends, parent }) => {
+export const load = async ({ data }) => {
   const { session } = data;
 
   return {

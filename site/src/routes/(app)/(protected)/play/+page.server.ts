@@ -23,6 +23,8 @@ export async function load({ parent }) {
 	if (result) {
 		throw redirect(302, `/play/${result.games.id}`);
 	}
+
+	// TODO: Query all available games (or rather, game ids)
 }
 
 const timeControlSchema = zfd.formData({
@@ -40,11 +42,14 @@ export const actions = {
 		const { minutes, increment } = timeControlSchema.parse(await request.formData());
 		const color = Math.random() > 0.5 ? 'white' : 'black';
 
-		await db.insert(games).values({
-			id: createId(),
+		const gameId = createId();
+		const result = await db.insert(games).values({
+			id: gameId,
 			tc_increment: increment,
 			tc_minutes: minutes,
 			[color]: session.user.id,
 		})
+
+		throw redirect(303, `/play/${gameId}`);
 	},
 }

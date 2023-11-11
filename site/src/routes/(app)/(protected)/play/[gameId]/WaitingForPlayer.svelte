@@ -8,7 +8,7 @@
   export let challenger: { color: Color | null };
 
   $: expectedDuration = `${
-    Math.floor(timeControl.totalTime(40) * 4) / 4
+    Math.round(timeControl.totalTime(40) * 4) / 4
   } minutes`;
 
   const dispatch = createEventDispatcher<{ cancel: void }>();
