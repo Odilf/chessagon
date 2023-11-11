@@ -3,14 +3,14 @@
 
   export let data;
 
-  $: ({ profile } = data);
+  $: ({ user } = data.session);
 </script>
 
 <main class="main-column py-4">
   <ProfileCard
-    username={profile.username}
-    rating={profile.rating}
-    id={profile.id}
-    on:logout={() => data.supabase.auth.signOut()}
+    username={user?.name ?? "Uknown user"}
+    rating={user?.rating}
+    img={user?.image ?? null}
+    on:logout={() => fetch("/login?/logout", { method: "post", body: "" })}
   />
 </main>

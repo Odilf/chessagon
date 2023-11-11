@@ -1,15 +1,9 @@
-import type { SupabaseClient, Session } from "@supabase/supabase-js";
-import type { Database } from "$lib/db/generatedTypes";
-
 declare global {
-  // See https://kit.svelte.dev/docs/types#app
-  // for information about these interfaces
-  // and what to do when importing types
   declare namespace App {
     interface Locals {
-      supabase: SupabaseClient<Database>;
-      getSession(): Promise<Session | null>;
+      auth: import("lucia").AuthRequest;
     }
+    interface PageData {}
     // interface Platform {}
     // interface PrivateEnv {}
     // interface PublicEnv {}
@@ -17,3 +11,17 @@ declare global {
     // interface Stuff {}
   }
 }
+
+/// <reference types="lucia" />
+declare namespace Lucia {
+  type Auth = import("$lib/server/lucia").Auth;
+  // we omit the id property because lucia automatically generate it for us when we create a user
+  type DatabaseUserAttributes = {
+    username: string;
+    names: string;
+    last_names: string;
+  };
+  type DatabaseSessionAttributes = {};
+}
+
+export {};

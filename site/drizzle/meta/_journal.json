@@ -1,0 +1,55 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1699715674792,
+      "tag": "0000_narrow_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1699716184490,
+      "tag": "0001_exotic_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1699716679421,
+      "tag": "0002_curved_silver_sable",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1699716739932,
+      "tag": "0003_dashing_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1699717585216,
+      "tag": "0004_ambitious_payback",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1699717852581,
+      "tag": "0005_clever_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1699721666869,
+      "tag": "0006_known_zarda",
+      "breakpoints": true
+    }
+  ]
+}

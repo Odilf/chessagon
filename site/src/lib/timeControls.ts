@@ -25,9 +25,16 @@ export class TimeControl {
   /**
    * Returns the time remaining, in seconds.
    */
-  public timeRemaining(timeStarted: Date, moveNumber: number, currentTime: Date = new Date()) {
+  public timeRemaining(
+    timeStarted: Date,
+    moveNumber: number,
+    currentTime: Date = new Date(),
+  ) {
     const timeElapsed = (currentTime.getTime() - timeStarted.getTime()) / 1000;
-    const timeRemaining = this.minutes * 60 - timeElapsed + Math.floor(moveNumber / 2) * this.increment;
+    const timeRemaining =
+      this.minutes * 60 -
+      timeElapsed +
+      Math.floor(moveNumber / 2) * this.increment;
 
     return timeRemaining;
   }

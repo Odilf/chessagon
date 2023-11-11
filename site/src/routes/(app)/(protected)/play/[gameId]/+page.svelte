@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   import { Color, GameState, Vector } from "$engine/chessagon";
   import BoardManaged from "$lib/board/BoardManaged.svelte";
-  import { handleSupabaseResponse } from "$lib/db/utils.js";
+  // import { handleSupabaseResponse } from "$lib/db/utils.js";
   import { onDestroy } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
 
@@ -11,26 +11,26 @@
 
   let game = new GameState();
 
-  if (data.game.isActive) {
-    for (const { origin, target } of data.game.moves) {
-      try {
-        game.try_move(origin, target);
-      } catch (err) {
-        console.warn(err);
-        throw new Error("FATAL ERROR: Invalid move in game history");
-      }
-    }
-  }
+  // if (data.game.isActive) {
+  //   for (const { origin, target } of data.game.moves) {
+  //     try {
+  //       game.try_move(origin, target);
+  //     } catch (err) {
+  //       console.warn(err);
+  //       throw new Error("FATAL ERROR: Invalid move in game history");
+  //     }
+  //   }
+  // }
 
   async function cancelGame() {
-    const response = await data.supabase
-      .from("live_games")
-      .delete()
-      .eq("id", data.game.id);
+  //   const response = await data.supabase
+  //     .from("live_games")
+  //     .delete()
+  //     .eq("id", data.game.id);
 
-    handleSupabaseResponse(response);
+  //   handleSupabaseResponse(response);
 
-    invalidate(`game:${data.game.id}`);
+  // invalidate(`game:${data.game.id}`);
   }
 
   async function handleMove({
@@ -38,61 +38,61 @@
   }: {
     detail: { from: Vector; to: Vector };
   }) {
-    skipNextUpdate = true;
+  //   skipNextUpdate = true;
 
-    let response = await fetch(`${$page.url}/send-move`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/blob",
-      },
-      body: Int8Array.from([from.x, from.y, to.x, to.y]),
-    });
+  //   let response = await fetch(`${$page.url}/send-move`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/blob",
+  //     },
+  //     body: Int8Array.from([from.x, from.y, to.x, to.y]),
+  //   });
 
-    if (response.ok) {
-      try {
-        game.try_move(from, to);
-      } catch {
-        throw new Error("TODO: Describe error");
-      }
+  //   if (response.ok) {
+  //     try {
+  //       game.try_move(from, to);
+  //     } catch {
+  //       throw new Error("TODO: Describe error");
+  //     }
 
-      game.board = game.board;
-    } else {
-      console.log(response)
-    }
+  //     game.board = game.board;
+  //   } else {
+  //     console.log(response)
+  //   }
   }
 
-  let skipNextUpdate = false;
+  // let skipNextUpdate = false;
 
-  const channel = data.supabase
-    .channel(`update-moves-${data.game.id}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "live_moves",
-        filter: `game_id=eq.${data.game.id}`,
-      },
-      (payload) => {
-        const { origin_x, origin_y, target_x, target_y } = payload.new;
+  // const channel = data.supabase
+  //   .channel(`update-moves-${data.game.id}`)
+  //   .on(
+  //     "postgres_changes",
+  //     {
+  //       event: "INSERT",
+  //       schema: "public",
+  //       table: "live_moves",
+  //       filter: `game_id=eq.${data.game.id}`,
+  //     },
+  //     (payload) => {
+  //       const { origin_x, origin_y, target_x, target_y } = payload.new;
 
-        const origin = new Vector(origin_x, origin_y);
-        const target = new Vector(target_x, target_y);
+  //       const origin = new Vector(origin_x, origin_y);
+  //       const target = new Vector(target_x, target_y);
 
-        if (skipNextUpdate) {
-          skipNextUpdate = false;
-          return;
-        }
+  //       if (skipNextUpdate) {
+  //         skipNextUpdate = false;
+  //         return;
+  //       }
 
-        game.try_move(origin, target);
-        game = game;
-      },
-    )
-    .subscribe();
+  //       game.try_move(origin, target);
+  //       game = game;
+  //     },
+  //   )
+  //   .subscribe();
 
-  onDestroy(() => {
-    channel.unsubscribe();
-  });
+  // onDestroy(() => {
+  //   channel.unsubscribe();
+  // });
 </script>
 
 {#if data.game.isActive}
@@ -103,7 +103,7 @@
       <BoardManaged
         on:move={handleMove}
         {game}
-        playerColor={data.game.color}
+        playerColor={data.playerColor}
         on:result={({ detail }) => {
           if (detail.winner) {
             console.log(Color[detail.winner]);
@@ -119,7 +119,7 @@
     </div>
   </div>
 {:else}
-  <WaitingForPlayer {...data.game} on:cancel={cancelGame} />
+  <WaitingForPlayer timeControl={data.game.timeControl} challenger={{ color: Color.Black }} on:cancel={cancelGame} />
 {/if}
 
 <style lang="postcss">
