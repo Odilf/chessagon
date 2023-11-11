@@ -10,6 +10,6 @@ export async function load({ data }) {
 			timeControl: new TimeControl(game.tc_minutes, game.tc_increment),
 			...game,
 		},
-		playerColor: playerColor === 'white' ? Color.White : Color.Black,
+		playerColor,
 	}
 }

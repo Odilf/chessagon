@@ -10,9 +10,6 @@
 
   export let data;
 
-  $: console.log(data);
-  
-
   let game = new GameState();
 
   // if (data.game.isActive) {

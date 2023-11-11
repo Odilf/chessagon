@@ -1,9 +1,8 @@
 import { Color } from '$engine/chessagon.js';
 import { db } from '$lib/db/index.js';
-import { games, moves, users } from '$lib/db/schema';
+import { games } from '$lib/db/schema';
 import { error, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/sqlite-core';
 
 export async function load({ parent, params }) {
 	const { session } = await parent();
@@ -21,14 +20,15 @@ export async function load({ parent, params }) {
 		throw error(404, "Game not found")
 	}
 
+	// Find the player's color
 	let playerColor;
-
 	if (session.user.id === game.white?.id) {
 		playerColor = Color.White;
 	} else if (session.user.id === game.black?.id) {
 		playerColor = Color.Black;
 	}
 
+	// If the player is not in the game, try to join it
 	if (playerColor == null) {
 		let emptySpot: "white" | "black" | null = null;
 		if (!game.white) {
@@ -41,12 +41,12 @@ export async function load({ parent, params }) {
 			throw error(403, "Game is full")
 		}
 
-		playerColor = emptySpot;
+		playerColor = emptySpot === "white" ? Color.White : Color.Black;
 		await db.update(games)
-			.set({ [playerColor]: session.user.id })
+			.set({ [emptySpot]: session.user.id })
 			.where(eq(games.id, params.gameId))		
 
-		game[playerColor] = session.user;
+		game[emptySpot] = session.user;
 	}
 	
 	return {
