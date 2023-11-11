@@ -22,6 +22,7 @@ function redirectAfterLogin(navigateAfterLogin: string | null) {
   return redirect(302, "/profile");
 }
 
+// TODO: Tidy up this
 export const actions = {
   register: async ({ request, locals, url }) => {
     const result = registerSchema.safeParse(await request.formData());
@@ -60,7 +61,6 @@ export const actions = {
         // e instanceof SomeDatabaseError &&
         // e.message === USER_TABLE_UNIQUE_CONSTRAINT_ERROR
       ) {
-        console.log("login", e);
         return fail(400, {
           error: {
             message: "Username already taken",
@@ -104,7 +104,6 @@ export const actions = {
         (e.message === "AUTH_INVALID_KEY_ID" ||
           e.message === "AUTH_INVALID_PASSWORD")
       ) {
-        console.log(e);
         return fail(400, {
           error: {
             message: "Incorrect username or password",
