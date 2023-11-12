@@ -30,7 +30,7 @@ export const actions = {
       return fail(400, {
         error: {
           message: result.error.message,
-        }
+        },
       });
     }
 
@@ -64,13 +64,13 @@ export const actions = {
         return fail(400, {
           error: {
             message: "Username already taken",
-          }
+          },
         });
       }
       return fail(500, {
         error: {
           message: "An unknown error occurred",
-        }
+        },
       });
     }
 
@@ -83,7 +83,7 @@ export const actions = {
       return fail(400, {
         error: {
           message: result.error.message,
-        }
+        },
       });
     }
 
@@ -107,13 +107,13 @@ export const actions = {
         return fail(400, {
           error: {
             message: "Incorrect username or password",
-          }
+          },
         });
       }
       return fail(500, {
         error: {
           message: "An unknown error occurred",
-        }
+        },
       });
     }
 
@@ -127,6 +127,6 @@ export const actions = {
     }
 
     locals.auth.setSession(null); // remove cookie
-    throw redirect(302, '/login'); // redirect to login page
+    throw redirect(302, "/login"); // redirect to login page
   },
 };

@@ -1,82 +1,112 @@
-// import { Color, GameState, Vector } from "$engine/chessagon.js";
-// import { error } from "@sveltejs/kit";
-// import { _getMoves } from "../+page.js";
-// // import { handleSupabaseResponse } from "$lib/db/utils.js";
-// import { getStatusFromCode } from "$lib/game/status.js";
-// // import type { SupabaseClient } from "@supabase/supabase-js";
-// // import type { Database } from "$lib/db/generatedTypes.js";
-// import { TimeControl } from "$lib/timeControls.js";
+import { Color, GameState, Vector } from "$engine/chessagon.js";
+import { error } from "@sveltejs/kit";
+import { db } from "$lib/db/index.js";
+import { games, moves } from "$lib/db/schema.js";
+import { eq, or, sql } from "drizzle-orm";
+import { pusher } from "$lib/pusher/index.js";
+import { gameChannel, newMoveEvent } from "$lib/pusher/events";
+import type { Move } from "$lib/wasmTypesGlue";
 
-// async function readBody(request: Request) {
-//   if (request.body === null) {
-//     throw error(400, "request body is null");
-//   }
+async function readBody(request: Request) {
+  if (request.body === null) {
+    throw error(400, "request body is null");
+  }
 
-//   const readPromise = request.body.getReader().read();
-//   const array = await readPromise;
+  const array = await request.body.getReader().read();
 
-//   if (!array.value) {
-//     throw error(400, "array can't be read somehow i think");
-//   }
+  if (!array.value) {
+    throw error(400, "array can't be read somehow i think (TODO: Check this)");
+  }
 
-//   const [origin_x, origin_y, target_x, target_y] = new Int8Array(array.value);
-//   const origin = new Vector(origin_x, origin_y);
-//   const target = new Vector(target_x, target_y);
+  const [origin_x, origin_y, target_x, target_y] = new Int8Array(array.value);
+  const origin = new Vector(origin_x, origin_y);
+  const target = new Vector(target_x, target_y);
 
-//   return { origin, target };
-// }
+  return { origin, target };
+}
 
-// function gameFromMoves(moves: { origin: Vector; target: Vector }[]): GameState {
-//   const game = new GameState();
+function gameFromMoves(moves: Move[]): GameState {
+  const game = new GameState();
 
-//   for (const { origin, target } of moves) {
-//     game.try_move(origin, target);
-//   }
+  for (const { origin, target } of moves) {
+    game.try_move(origin, target);
+  }
 
-//   return game;
-// }
+  return game;
+}
 
-// export async function POST({
-//   params: { gameId },
-//   request,
-//   locals: { supabase },
-// }) {
-//   const { origin, target } = await readBody(request);
-//   const moves = await _getMoves(supabase, gameId);
+export async function POST({ params, request, locals }) {
+  const [{ origin, target }, session] = await Promise.all([
+    readBody(request),
+    locals.auth.validate(),
+  ])
 
-//   let game: GameState;
+  const game = await db.query.games.findFirst({
+    columns: {
+      white: true,
+      black: true,
+      result_code: true,
+    },
+    where: eq(games.id, params.gameId),
+    with: {
+      white: {
+        columns: {
+          id: true,
+        }
+      },
+      black: {
+        columns: {
+          id: true,
+        }
+      },
+      moves: {
+        columns: {
+          origin_x: true,
+          origin_y: true,
+          target_x: true,
+          target_y: true,
+        }
+      }
+    },
+  });
 
-//   try {
-//     game = gameFromMoves(moves);
-//   } catch {
-//     throw error(500, "MALFORMED");
-//   }
+  if (!game) {
+    return new Response("Can't access game", { status: 400 });
+  }
 
-//   try {
-//     game.try_move(origin, target);
-//   } catch {
-//     throw error(403, "Illegal move");
-//   }
+  const color = game.moves.length % 2 === 0 ? "white" : "black" as "white" | "black";
 
-//   const response = await supabase.from("live_moves").insert({
-//     origin_x: origin.x,
-//     origin_y: origin.y,
-//     target_x: target.x,
-//     target_y: target.y,
-//     game_id: gameId,
-//   });
+  if (game[color]?.id !== session.user.id) {
+    return new Response("Not your game or turn", { status: 403 });
+  }
 
-//   handleSupabaseResponse(response);
+  const board = gameFromMoves(game.moves.map(({ origin_x, origin_y, target_x, target_y }) => ({
+    origin: new Vector(origin_x, origin_y),
+    target: new Vector(target_x, target_y),
+  })));
 
-//   const status = game.status_code();
-//   console.log(status);
+  if (!board.can_move(origin, target)) {
+    return new Response("Invalid move", { status: 400 });
+  }
 
-//   if (getStatusFromCode(status)?.inProgress === false) {
-//     await archiveGame(supabase, gameId, status, [...moves, { origin, target, created_at: Date.now() / 1000 }]);
-//   }
+  await Promise.all([
+    db.insert(moves).values({
+      index: game.moves.length,
+      gameId: params.gameId,
+      origin_x: origin.x,
+      origin_y: origin.y,
+      target_x: target.x,
+      target_y: target.y,
+    }),
 
-//   return new Response(null, { status: 200 });
-// }
+    await pusher.trigger(gameChannel(params.gameId), newMoveEvent, {
+      origin,
+      target,
+    })
+  ])
+
+  return new Response(null, { status: 200 });
+}
 
 // async function archiveGame(
 //   supabase: SupabaseClient<Database>,

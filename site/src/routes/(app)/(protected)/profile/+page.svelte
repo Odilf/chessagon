@@ -11,6 +11,10 @@
     username={user?.name ?? "Uknown user"}
     rating={user?.rating}
     img={user?.image ?? null}
-    on:logout={() => /* TODO: Remove this */ fetch("login?/logout", { method: "post", body: "" })}
+    on:logout={() =>
+      /* TODO: Remove this */ fetch("login?/logout", {
+        method: "post",
+        body: "",
+      })}
   />
 </main>

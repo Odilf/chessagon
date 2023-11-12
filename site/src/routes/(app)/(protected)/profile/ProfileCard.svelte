@@ -24,7 +24,10 @@
     {/if}
   </div>
 
-  <button class="btn variant-ghost-error mt-4" on:click={() => dispatch("logout")}>
+  <button
+    class="btn variant-ghost-error mt-4"
+    on:click={() => dispatch("logout")}
+  >
     Log out
   </button>
 </div>

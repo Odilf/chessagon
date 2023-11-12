@@ -43,19 +43,23 @@ export const gameRelations = relations(games, ({ one, many }) => {
 
     moves: many(moves),
   };
-})
+});
 
-export const moves = sqliteTable("moves", {
-  index: integer("index"),
-  gameId: text("game_id").references(() => games.id, { onDelete: "cascade" }),
-  from_x: integer("from_x").notNull(),
-  from_y: integer("from_y").notNull(),
-  to_x: integer("to_x").notNull(),
-  to_y: integer("to_y").notNull(),
-  timestamp: integer("timestamp", { mode: "timestamp" })
-}, (table) => ({
-  pk: primaryKey(table.index, table.gameId),
-}));
+export const moves = sqliteTable(
+  "moves",
+  {
+    index: integer("index").notNull(),
+    gameId: text("game_id").references(() => games.id, { onDelete: "cascade" }).notNull(),
+    origin_x: integer("origin_x").notNull(),
+    origin_y: integer("origin_y").notNull(),
+    target_x: integer("target_x").notNull(),
+    target_y: integer("target_y").notNull(),
+    timestamp: integer("timestamp", { mode: "timestamp" }).$default(() => new Date()),
+  },
+  (table) => ({
+    pk: primaryKey(table.index, table.gameId),
+  }),
+);
 
 export const moveRelations = relations(moves, ({ one }) => {
   return {

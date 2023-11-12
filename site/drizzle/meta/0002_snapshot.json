@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "f4dc4b4e-0285-42ce-89fe-32c3519a0605",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "aa3d8d95-e847-4f90-930f-eb297ae491fe",
+  "prevId": "7a08cbd6-4591-4d9b-88a2-4007833e1eee",
   "tables": {
     "user_key": {
       "name": "user_key",
@@ -35,8 +35,12 @@
           "name": "user_key_user_id_users_id_fk",
           "tableFrom": "user_key",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -82,8 +86,12 @@
           "name": "user_session_user_id_users_id_fk",
           "tableFrom": "user_session",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -189,8 +197,12 @@
           "name": "games_white_users_id_fk",
           "tableFrom": "games",
           "tableTo": "users",
-          "columnsFrom": ["white"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "white"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -198,8 +210,12 @@
           "name": "games_black_users_id_fk",
           "tableFrom": "games",
           "tableTo": "users",
-          "columnsFrom": ["black"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "black"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -214,39 +230,39 @@
           "name": "index",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "game_id": {
           "name": "game_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
-        "from_x": {
-          "name": "from_x",
+        "origin_x": {
+          "name": "origin_x",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "from_y": {
-          "name": "from_y",
+        "origin_y": {
+          "name": "origin_y",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "to_x": {
-          "name": "to_x",
+        "target_x": {
+          "name": "target_x",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "to_y": {
-          "name": "to_y",
+        "target_y": {
+          "name": "target_y",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -266,15 +282,22 @@
           "name": "moves_game_id_games_id_fk",
           "tableFrom": "moves",
           "tableTo": "games",
-          "columnsFrom": ["game_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "game_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "moves_index_game_id_pk": {
-          "columns": ["game_id", "index"]
+          "columns": [
+            "game_id",
+            "index"
+          ]
         }
       },
       "uniqueConstraints": {}

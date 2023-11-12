@@ -1,54 +1,65 @@
 <script lang="ts">
-  import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
-  import { Color, GameState, Vector } from "$engine/chessagon";
+  import { Color, GameState, Move, Vector } from "$engine/chessagon";
   import BoardManaged from "$lib/board/BoardManaged.svelte";
-  // import { handleSupabaseResponse } from "$lib/db/utils.js";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
   import { enhance } from "$app/forms";
+  import Pusher from "pusher-js";
+  import { PUBLIC_PUSHER_CLUSTER, PUBLIC_PUSHER_KEY } from "$env/static/public";
+  import { newMoveEvent } from "$lib/pusher/events";
+  import { or } from "drizzle-orm";
 
   export let data;
 
   let game = new GameState();
+  const pusher = new Pusher(PUBLIC_PUSHER_KEY, {
+    cluster: PUBLIC_PUSHER_CLUSTER,
+  });
 
-  // if (data.game.isActive) {
-  //   for (const { origin, target } of data.game.moves) {
-  //     try {
-  //       game.try_move(origin, target);
-  //     } catch (err) {
-  //       console.warn(err);
-  //       throw new Error("FATAL ERROR: Invalid move in game history");
-  //     }
-  //   }
-  // }
+  onDestroy(() => {
+    pusher.disconnect();
+  });
 
-  async function handleMove({
-    detail: { from, to },
-  }: {
-    detail: { from: Vector; to: Vector };
-  }) {
-  //   skipNextUpdate = true;
+  const channel = pusher.subscribe(`game-${data.game.id}`);
+  channel.bind(newMoveEvent, ({ origin, target }: Move) => {
+    console.log("Received move", origin, target);
+    
+    game.try_move(
+      new Vector(origin.x, origin.y), 
+      new Vector(target.x, target.y)
+    );
+    game = game; // Trigger reactivity
+  });  
 
-  //   let response = await fetch(`${$page.url}/send-move`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/blob",
-  //     },
-  //     body: Int8Array.from([from.x, from.y, to.x, to.y]),
-  //   });
+  for (const { origin, target } of data.game.moves) {
+    try {
+      game.try_move(origin, target);
+    } catch (err) {
+      console.warn(err);
+      throw new Error("FATAL ERROR: Invalid move in game history");
+    }
+  }
 
-  //   if (response.ok) {
-  //     try {
-  //       game.try_move(from, to);
-  //     } catch {
-  //       throw new Error("TODO: Describe error");
-  //     }
+  async function handleMove(from: Vector, to: Vector) {
+    //   skipNextUpdate = true;
 
-  //     game.board = game.board;
-  //   } else {
-  //     console.log(response)
-  //   }
+    let response = await fetch(`${$page.url}/send-move`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/blob",
+      },
+      body: Int8Array.from([from.x, from.y, to.x, to.y]),
+    });
+
+    try {
+      // TODO: Optimistic updates
+      // game.try_move(from, to);
+    } catch {
+      throw new Error("TODO: This should never happen");
+    }
+
+    game.board = game.board;
   }
 
   // let skipNextUpdate = false;
@@ -79,10 +90,6 @@
   //     },
   //   )
   //   .subscribe();
-
-  // onDestroy(() => {
-  //   channel.unsubscribe();
-  // });
 </script>
 
 {#if data.game.isActive}
@@ -91,7 +98,7 @@
   >
     <div class="board-wrapper px-2 md:px-0 py-4 overflow-hidden flex-shrink">
       <BoardManaged
-        on:move={handleMove}
+        on:move={({ detail: { from, to } }) => handleMove(from, to)}
         {game}
         playerColor={data.playerColor}
         on:result={({ detail }) => {
@@ -110,7 +117,10 @@
   </div>
 {:else}
   <form method="post" action="?/cancelGame" use:enhance>
-    <WaitingForPlayer timeControl={data.game.timeControl} challenger={{ color: Color.Black }} />
+    <WaitingForPlayer
+      timeControl={data.game.timeControl}
+      challenger={{ color: Color.Black }}
+    />
   </form>
 {/if}
 

@@ -8,6 +8,20 @@
       "when": 1699730100572,
       "tag": "0000_windy_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1699779684463,
+      "tag": "0001_mean_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1699779714370,
+      "tag": "0002_orange_wild_pack",
+      "breakpoints": true
     }
   ]
 }

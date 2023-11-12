@@ -25,25 +25,20 @@
     //   })
     //   .select()
     //   .single();
-
     // if (error) {
     //   toastStore.trigger({
     //     message: formatError(error),
     //     background: "variant-filled-error",
     //   });
-
     //   return;
     // }
-
     // if (data === null) {
     //   toastStore.trigger({
     //     message: "Selected game is `null`",
     //     background: "variant-filled-error",
     //   });
-
     //   return;
     // }
-
     // goto(`/play/${data.id}`);
   }
 
@@ -72,16 +67,31 @@
 <div class="grid grid-cols-4 gap-3">
   {#each timeControls as timeControl}
     <form action="?/createGame" method="post" use:enhance>
-      <button class="card btn h3 variant-outline-secondary flex flex-col w-full">
+      <button
+        class="card btn h3 variant-outline-secondary flex flex-col w-full"
+      >
         {timeControl.toString()}
       </button>
 
-      <input type="number" name="increment" value={timeControl.increment} class="hidden">
-      <input type="number" name="minutes" value={timeControl.minutes} class="hidden">
+      <input
+        type="number"
+        name="increment"
+        value={timeControl.increment}
+        class="hidden"
+      />
+      <input
+        type="number"
+        name="minutes"
+        value={timeControl.minutes}
+        class="hidden"
+      />
     </form>
   {/each}
-  
-  <button class="card btn h3 variant-outline-secondary flex flex-col" on:click={() => todo()}>
+
+  <button
+    class="card btn h3 variant-outline-secondary flex flex-col"
+    on:click={() => todo()}
+  >
     custom
   </button>
 </div>
