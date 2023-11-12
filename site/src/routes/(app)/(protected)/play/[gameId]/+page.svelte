@@ -1,18 +1,41 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { Color, GameState, Move, Vector } from "$engine/chessagon";
+  import { Color, Vector } from "$engine/chessagon";
   import BoardManaged from "$lib/board/BoardManaged.svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
   import { enhance } from "$app/forms";
   import Pusher from "pusher-js";
   import { PUBLIC_PUSHER_CLUSTER, PUBLIC_PUSHER_KEY } from "$env/static/public";
   import { newMoveEvent } from "$lib/pusher/events";
-  import { or } from "drizzle-orm";
+  import type { Move } from "$lib/wasmTypesGlue";
+  import { gameFromMoves } from "./utils";
 
   export let data;
 
-  let game = new GameState();
+  let game = gameFromMoves(data.game.moves);
+
+  const makeMove = ({ origin, target }: Move) => {
+    const lastMove = data.game.moves[data.game.moves.length - 1];
+
+    // If we're trying to do the same last move, don't.
+    // Happens because of optimistic updates
+    if (
+      lastMove &&
+      lastMove.origin.x === origin.x &&
+      lastMove.origin.y === origin.y &&
+      lastMove.target.x === target.x &&
+      lastMove.target.y === target.y
+    ) {
+      return;
+    }
+
+    data.game.moves.push({ origin, target });
+    game.try_move(origin, target);
+
+    game.board = game.board; // Trigger reactivity
+  };
+
   const pusher = new Pusher(PUBLIC_PUSHER_KEY, {
     cluster: PUBLIC_PUSHER_CLUSTER,
   });
@@ -22,74 +45,41 @@
   });
 
   const channel = pusher.subscribe(`game-${data.game.id}`);
-  channel.bind(newMoveEvent, ({ origin, target }: Move) => {
-    console.log("Received move", origin, target);
-    
-    game.try_move(
-      new Vector(origin.x, origin.y), 
-      new Vector(target.x, target.y)
-    );
-    game = game; // Trigger reactivity
-  });  
+  channel.bind(
+    newMoveEvent,
+    (move: {
+      origin: { x: number; y: number };
+      target: { x: number; y: number };
+    }) => {
+      const { origin, target } = move;
 
-  for (const { origin, target } of data.game.moves) {
-    try {
-      game.try_move(origin, target);
-    } catch (err) {
-      console.warn(err);
-      throw new Error("FATAL ERROR: Invalid move in game history");
+      makeMove({
+        origin: new Vector(origin.x, origin.y),
+        target: new Vector(target.x, target.y),
+      });
     }
-  }
+  );
 
-  async function handleMove(from: Vector, to: Vector) {
-    //   skipNextUpdate = true;
-
-    let response = await fetch(`${$page.url}/send-move`, {
+  async function handleMove(origin: Vector, target: Vector) {
+    const request = fetch(`${$page.url}/send-move`, {
       method: "POST",
       headers: {
         "Content-Type": "application/blob",
       },
-      body: Int8Array.from([from.x, from.y, to.x, to.y]),
+      body: Int8Array.from([origin.x, origin.y, target.x, target.y]),
     });
 
-    try {
-      // TODO: Optimistic updates
-      // game.try_move(from, to);
-    } catch {
-      throw new Error("TODO: This should never happen");
+    makeMove({ origin, target })
+
+    // TODO: Test if this works. Seems like it should
+    const response = await request;
+    if (!response.ok) {
+      data.game.moves.pop();
+      gameFromMoves(data.game.moves);
     }
 
     game.board = game.board;
   }
-
-  // let skipNextUpdate = false;
-
-  // const channel = data.supabase
-  //   .channel(`update-moves-${data.game.id}`)
-  //   .on(
-  //     "postgres_changes",
-  //     {
-  //       event: "INSERT",
-  //       schema: "public",
-  //       table: "live_moves",
-  //       filter: `game_id=eq.${data.game.id}`,
-  //     },
-  //     (payload) => {
-  //       const { origin_x, origin_y, target_x, target_y } = payload.new;
-
-  //       const origin = new Vector(origin_x, origin_y);
-  //       const target = new Vector(target_x, target_y);
-
-  //       if (skipNextUpdate) {
-  //         skipNextUpdate = false;
-  //         return;
-  //       }
-
-  //       game.try_move(origin, target);
-  //       game = game;
-  //     },
-  //   )
-  //   .subscribe();
 </script>
 
 {#if data.game.isActive}
