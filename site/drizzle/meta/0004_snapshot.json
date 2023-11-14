@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "aa3d8d95-e847-4f90-930f-eb297ae491fe",
-  "prevId": "7a08cbd6-4591-4d9b-88a2-4007833e1eee",
+  "id": "e10f26b6-b62f-4a95-8772-b2d49b971898",
+  "prevId": "499a22b2-eb30-4f7d-b364-f72ce3a82c93",
   "tables": {
     "user_key": {
       "name": "user_key",
@@ -139,15 +139,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
+        "started_at": {
+          "name": "started_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "result_code": {
-          "name": "result_code",
+        "status_code": {
+          "name": "status_code",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -284,6 +284,8 @@
   "_meta": {
     "schemas": {},
     "tables": {},
-    "columns": {}
+    "columns": {
+      "\"games\".\"result_code\"": "\"games\".\"status_code\""
+    }
   }
 }

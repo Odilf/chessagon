@@ -1,0 +1,1 @@
+ALTER TABLE `games` RENAME COLUMN `created_at` TO `started_at`;

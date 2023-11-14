@@ -22,6 +22,27 @@
       "when": 1699779714370,
       "tag": "0002_orange_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1699795424760,
+      "tag": "0003_wide_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1699977599832,
+      "tag": "0004_red_edwin_jarvis",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1699986826739,
+      "tag": "0005_mushy_lizard",
+      "breakpoints": true
     }
   ]
 }

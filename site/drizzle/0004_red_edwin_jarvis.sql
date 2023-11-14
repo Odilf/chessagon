@@ -1,0 +1,1 @@
+ALTER TABLE `games` RENAME COLUMN `result_code` TO `status_code`;
