@@ -58,3 +58,27 @@ export function getStatusFromCode(code: number): Status | null {
       return null;
   }
 }
+
+export function getCodeFromStatus(status: Status): number {
+  if (status.inProgress) {
+    return 0;
+  }
+
+  // TODO: Check this is correct, written by Copilot (seems rigth)
+  switch (status.reason) {
+    case "checkmate":
+      return status.winner === Color.White ? 100 : 200;
+    case "out_of_time":
+      return status.winner === Color.White ? 101 : 201;
+    case "agreement":
+      return 300;
+    case "stalemate":
+      return 301;
+    case "insufficient_material":
+      return 302;
+    case "threefold_repetition":
+      return 303;
+    case "fifty_rule_move":
+      return 304;
+  }
+}

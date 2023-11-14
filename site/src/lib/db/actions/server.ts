@@ -12,9 +12,19 @@ import {
   newMoveEventName,
 } from "$lib/pusher/events";
 import { gameFromMoves } from "$lib/wasmTypesGlue";
-import { Vector } from "$engine/chessagon";
+import { Color as ColorEnum, Vector } from "$engine/chessagon";
+import {
+  getCodeFromStatus,
+  getStatusFromCode,
+  type Status,
+} from "$lib/game/status";
+import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
 
-export async function joinGame(userId: string, gameId: string, color: "white" | "black") {
+export async function joinGame(
+  userId: string,
+  gameId: string,
+  color: "white" | "black",
+) {
   const result = await db
     .update(games)
     .set({
@@ -69,6 +79,9 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
       white: true,
       black: true,
       status_code: true,
+      started_at: true,
+      tc_minutes: true,
+      tc_increment: true,
     },
     where: eq(games.id, gameId),
     with: {
@@ -88,20 +101,45 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
           origin_y: true,
           target_x: true,
           target_y: true,
+          timestamp: true,
         },
       },
     },
   });
 
-  if (!game) {
+  if (!game || getStatusFromCode(game.status_code)?.inProgress === false) {
     return new Response("Can't access game", { status: 400 });
   }
 
-  const color =
-    game.moves.length % 2 === 0 ? "white" : ("black" as "white" | "black");
+  const color: Color = game.moves.length % 2 === 0 ? "white" : "black";
 
   if (game[color]?.id !== userId) {
     throw error(403, "Not your turn");
+  }
+
+  const colorEnum = color === "white" ? ColorEnum.White : ColorEnum.Black;
+
+  // TODO: Check if player run out of time
+  const timeRemaining = calculateTimeRemaining(
+    game.moves,
+    colorEnum,
+    game.started_at,
+    new TimeControl(game.tc_minutes, game.tc_increment),
+  );
+
+  if (timeRemaining < 0) {
+    const status = {
+      inProgress: false,
+      winner: colorEnum,
+      reason: "out_of_time",
+    } satisfies Status;
+
+    await db
+      .update(games)
+      .set({ status_code: getCodeFromStatus(status) })
+      .where(eq(games.id, gameId));
+
+    return;
   }
 
   const board = gameFromMoves(

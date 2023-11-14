@@ -13,7 +13,7 @@ export const auth = lucia({
   env: dev ? "DEV" : "PROD",
   getUserAttributes: (userData): { id: string } => ({
     id: userData.userId,
-    ...userData
+    ...userData,
   }),
   middleware: sveltekit(),
 });

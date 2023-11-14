@@ -1,3 +1,5 @@
+import type { Color } from "$engine/chessagon";
+
 export class TimeControl {
   constructor(
     public minutes: number,
@@ -46,3 +48,54 @@ export const timeControls: readonly TimeControl[] = [
   new TimeControl(30, 0),
   new TimeControl(30, 20),
 ] as const;
+
+export function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  if (minutes > 99) {
+    throw new Error(
+      `Time is too long to format (${minutes} minutes, ${seconds} seconds)`,
+    );
+  }
+
+  const secondsLeft = Math.floor(seconds % 60);
+  return `${minutes.toString().padStart(2, "0")}:${secondsLeft
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+/**
+ * Calculates the time elapsed for a given color, in seconds
+ */
+export function calculateTimeRemaining(
+  moves: { timestamp: Date }[],
+  color: Color,
+  timeStarted: Date,
+  timeControl: TimeControl,
+): number {
+  const timeElapsed = calculateTimeElapsed(moves, color, timeStarted);
+  const totalTime = timeControl.totalTimeAvailable(moves.length, color);
+
+  return totalTime - timeElapsed;
+}
+
+/**
+ * Calculates the time elapsed for a given color, in seconds
+ */
+export function calculateTimeElapsed(
+  moves: { timestamp: Date }[],
+  color: Color,
+  timeStarted: Date,
+): number {
+  let timestamps = moves.map((move) => move.timestamp.getTime());
+
+  // Boundary conditions
+  timestamps[-1] = timeStarted.getTime();
+  timestamps[timestamps.length] = Date.now();
+
+  let output = 0;
+  for (let i = color; i <= moves.length; i += 2) {
+    output += timestamps[i] - timestamps[i - 1];
+  }
+
+  return output / 1000;
+}

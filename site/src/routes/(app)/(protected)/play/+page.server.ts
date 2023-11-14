@@ -8,7 +8,6 @@ export async function load({ parent }) {
   const { session } = await parent();
 
   console.log("loading play +page.server.ts");
-  
 
   const games = await db.query.games.findMany({
     columns: {
@@ -60,7 +59,7 @@ export const actions = {
     const { gameId, color } = await requestSchema.parseAsync(
       await request.formData(),
     );
-    
+
     await joinGame(session.user.id, gameId, color);
   },
 };

@@ -26,7 +26,7 @@ declare namespace Lucia {
   type DatabaseSessionAttributes = {
     user: {
       userId: string;
-    }
+    };
   };
 }
 

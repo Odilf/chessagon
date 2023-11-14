@@ -10,23 +10,29 @@
     newMoveEventName,
     type NewMoveEventData,
   } from "$lib/pusher/events";
-  import {
-    type Move,
-    gameFromMoves,
-    calculateTimeRemaining,
-  } from "$lib/wasmTypesGlue";
+  import { type Move, gameFromMoves } from "$lib/wasmTypesGlue";
   import { getPusher, pusherStore } from "$lib/pusher/client";
   import { sendMove } from "$lib/db/actions/client";
+  import { calculateTimeRemaining, formatTime } from "$lib/timeControls";
 
   export let data;
 
   let game = gameFromMoves(data.game.moves);
-  // let timeRemaining = calculateTimeRemaining(
-  //   data.game.moves,
-  //   data.playerColor,
-  //   data.game.started_at,
-  //   data.game.timeControl,
-  // );
+  const getTimeRemaining = () =>
+    formatTime(
+      calculateTimeRemaining(
+        data.game.moves,
+        data.playerColor,
+        data.game.started_at,
+        data.game.timeControl,
+      ),
+    );
+
+  let timeRemaining = getTimeRemaining();
+
+  const timeRemainingInterval = setInterval(() => {
+    timeRemaining = getTimeRemaining();
+  }, 100);
 
   const makeMove = ({ origin, target }: Move) => {
     const lastMove = data.game.moves[data.game.moves.length - 1];
@@ -64,10 +70,6 @@
     });
   });
 
-  onDestroy(() => {
-    channel.unbind_all();
-  });
-
   async function handleMove(move: Move) {
     const request = sendMove(data.game.id, move);
 
@@ -83,6 +85,11 @@
 
     game.board = game.board;
   }
+
+  onDestroy(() => {
+    channel.unbind_all();
+    clearInterval(timeRemainingInterval);
+  });
 </script>
 
 {#if data.game.isActive}
@@ -105,11 +112,16 @@
     </div>
     <div class="grid place-content-center">
       <span class="font-bold text-3xl">Your turn</span>
-      <span class="font-bold text-3xl">03:20</span>
+      <span class="font-bold text-3xl">{timeRemaining}</span>
     </div>
   </div>
 {:else}
-  <form method="post" action="?/cancelGame" use:enhance class="flex flex-col items-center">
+  <form
+    method="post"
+    action="?/cancelGame"
+    use:enhance
+    class="flex flex-col items-center"
+  >
     <WaitingForPlayer
       timeControl={data.game.timeControl}
       host={{ color: data.game.black ? Color.Black : Color.White }}
