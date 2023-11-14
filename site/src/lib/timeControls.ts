@@ -33,6 +33,10 @@ export class TimeControl {
     const increment = Math.ceil(moveNumber / 2 - color) * this.increment;
     return this.minutes * 60 + increment;
   }
+
+  public static fromDatabase({ tc_increment, tc_minutes }: { tc_increment: number, tc_minutes: number }) {
+    return new TimeControl(tc_minutes, tc_increment);
+  }
 }
 
 export const timeControls: readonly TimeControl[] = [
