@@ -1,11 +1,5 @@
-import { Color, GameState, Vector } from "$engine/chessagon.js";
+import { Vector } from "$engine/chessagon.js";
 import { error } from "@sveltejs/kit";
-import { db } from "$lib/db/index.js";
-import { games, moves } from "$lib/db/schema.js";
-import { eq } from "drizzle-orm";
-import { pusher } from "$lib/pusher/server.js";
-import { gameChannel, newMoveEventName } from "$lib/pusher/events";
-import { gameFromMoves } from "$lib/wasmTypesGlue.js";
 import { receiveMove } from "$lib/db/actions/server";
 
 async function readBody(request: Request) {

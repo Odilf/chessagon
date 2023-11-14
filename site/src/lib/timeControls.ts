@@ -53,7 +53,13 @@ export const timeControls: readonly TimeControl[] = [
   new TimeControl(30, 20),
 ] as const;
 
+/**
+ * Formats a number as MM:SS. Throws if the number is too large.
+ * 
+ * Returns 00:00 if the number is negative.
+ */
 export function formatTime(seconds: number): string {
+  seconds = Math.max(seconds, 0);
   const minutes = Math.floor(seconds / 60);
   if (minutes > 99) {
     throw new Error(

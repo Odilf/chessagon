@@ -11,7 +11,7 @@
   <Nav />
 
   <div
-    class="px-2 flex-1 mx-auto flex flex-col items-center"
+    class="flex-1 mx-auto flex flex-col items-center"
     style:--height={navBarHeight.css}
   >
     <slot />

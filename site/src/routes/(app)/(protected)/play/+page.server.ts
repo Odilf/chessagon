@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { redirect } from "@sveltejs/kit";
 import { joinGame } from "$lib/db/actions/server";
-import { and, eq, isNull, not, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { IN_PROGRESS } from "$lib/game/status.js";
 import { games as gamesTable } from "$lib/db/schema";
 
