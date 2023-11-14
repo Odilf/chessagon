@@ -7,12 +7,13 @@ import { createId } from "@paralleldrive/cuid2";
 import { pusher } from "$lib/pusher/server";
 import {
   gameChannel,
+  gameFinishedEvent,
   gameUpdateEvent,
   generalGameChannel,
   newMoveEventName,
 } from "$lib/pusher/events";
-import { gameFromMoves } from "$lib/wasmTypesGlue";
-import { Color as ColorEnum, Vector } from "$engine/chessagon";
+import { gameFromMoves, moveFromDatabase } from "$lib/wasmTypesGlue";
+import { Color as ColorEnum } from "$engine/chessagon";
 import {
   getCodeFromStatus,
   getStatusFromCode,
@@ -85,16 +86,6 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     },
     where: eq(games.id, gameId),
     with: {
-      white: {
-        columns: {
-          id: true,
-        },
-      },
-      black: {
-        columns: {
-          id: true,
-        },
-      },
       moves: {
         columns: {
           origin_x: true,
@@ -113,7 +104,7 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
 
   const color: Color = game.moves.length % 2 === 0 ? "white" : "black";
 
-  if (game[color]?.id !== userId) {
+  if (game[color] !== userId) {
     throw error(403, "Not your turn");
   }
 
@@ -124,7 +115,7 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     game.moves,
     colorEnum,
     game.started_at,
-    new TimeControl(game.tc_minutes, game.tc_increment),
+    TimeControl.fromDatabase(game),
   );
 
   if (timeRemaining < 0) {
@@ -139,15 +130,12 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
       .set({ status_code: getCodeFromStatus(status) })
       .where(eq(games.id, gameId));
 
+    pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
+
     return;
   }
 
-  const board = gameFromMoves(
-    game.moves.map(({ origin_x, origin_y, target_x, target_y }) => ({
-      origin: new Vector(origin_x, origin_y),
-      target: new Vector(target_x, target_y),
-    })),
-  );
+  const board = gameFromMoves(game.moves.map(moveFromDatabase));
 
   const { origin, target } = move;
 
@@ -183,4 +171,57 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     origin,
     target,
   });
+}
+
+export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
+  const game = await db.query.games.findFirst({
+    columns: {
+      white: true,
+      black: true,
+      status_code: true,
+      started_at: true,
+      tc_minutes: true,
+      tc_increment: true,
+    },
+    where: eq(games.id, gameId),
+    with: {
+      moves: {
+        columns: {
+          timestamp: true,
+        },
+      },
+    },
+  });
+
+  if (!game || getStatusFromCode(game.status_code)?.inProgress === false) {
+    return new Response("Can't access game", { status: 400 });
+  }
+
+  const color = game.moves.length % 2 === 0 ? ColorEnum.White : ColorEnum.Black;
+
+  const timeRemaining = calculateTimeRemaining(
+    game.moves,
+    color,
+    game.started_at,
+    TimeControl.fromDatabase(game),
+  );
+
+  if (timeRemaining >= 0) {
+    return false;
+  }
+
+  const status = {
+    inProgress: false,
+    winner: color,
+    reason: "out_of_time",
+  } satisfies Status;
+
+  await db
+    .update(games)
+    .set({ status_code: getCodeFromStatus(status) })
+    .where(eq(games.id, gameId));
+
+  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
+
+  return true;
 }

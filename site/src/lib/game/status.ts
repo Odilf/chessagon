@@ -82,3 +82,5 @@ export function getCodeFromStatus(status: Status): number {
       return 304;
   }
 }
+
+export const IN_PROGRESS = 0 as const;

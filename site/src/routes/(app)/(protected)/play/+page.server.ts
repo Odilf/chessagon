@@ -3,11 +3,12 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { redirect } from "@sveltejs/kit";
 import { joinGame } from "$lib/db/actions/server";
+import { and, eq, isNull, not, or } from "drizzle-orm";
+import { IN_PROGRESS } from "$lib/game/status.js";
+import { games as gamesTable } from "$lib/db/schema";
 
 export async function load({ parent }) {
   const { session } = await parent();
-
-  console.log("loading play +page.server.ts");
 
   const games = await db.query.games.findMany({
     columns: {
@@ -32,6 +33,16 @@ export async function load({ parent }) {
         columns: { index: true },
       },
     },
+    where: and(
+      eq(gamesTable.status_code, IN_PROGRESS),
+      or(
+        isNull(gamesTable.white), 
+        isNull(gamesTable.black),
+        eq(gamesTable.white, session.user.id),
+        eq(gamesTable.black, session.user.id),
+      ),
+    ),
+    limit: 50,
   });
 
   const userGame = games.find(

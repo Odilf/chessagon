@@ -12,3 +12,5 @@ export type NewMoveEventData = {
   origin: { x: number; y: number };
   target: { x: number; y: number };
 };
+
+export const gameFinishedEvent = "game-finished";

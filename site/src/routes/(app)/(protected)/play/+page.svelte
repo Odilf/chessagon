@@ -9,7 +9,6 @@
   import { fly } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { onDestroy, onMount } from "svelte";
-  import type Pusher from "pusher";
   import type { Channel } from "pusher-js";
 
   export let data;
@@ -29,8 +28,7 @@
   onMount(() => {
     channel = getPusher().subscribe(generalGameChannel);
 
-    channel.bind(gameUpdateEvent, (data: unknown) => {
-      console.log("new game", data);
+    channel.bind(gameUpdateEvent, () => {
       invalidateAll();
     });
   });

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Color, Vector } from "$engine/chessagon";
   import BoardManaged from "$lib/board/BoardManaged.svelte";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
   import { enhance } from "$app/forms";
   import unwrap from "ts-unwrap";
@@ -9,29 +9,42 @@
     gameChannel,
     newMoveEventName,
     type NewMoveEventData,
+    gameFinishedEvent,
   } from "$lib/pusher/events";
   import { type Move, gameFromMoves } from "$lib/wasmTypesGlue";
-  import { getPusher, pusherStore } from "$lib/pusher/client";
-  import { sendMove } from "$lib/db/actions/client";
+  import { getPusher } from "$lib/pusher/client";
+  import { checkForTime, sendMove } from "$lib/db/actions/client";
   import { calculateTimeRemaining, formatTime } from "$lib/timeControls";
+  import type { Channel } from "pusher-js";
+  import { invalidateAll } from "$app/navigation";
 
   export let data;
 
   let game = gameFromMoves(data.game.moves);
-  const getTimeRemaining = () =>
-    formatTime(
-      calculateTimeRemaining(
-        data.game.moves,
-        data.playerColor,
-        data.game.started_at,
-        data.game.timeControl,
-      ),
-    );
+
+  const getTimeRemaining = () => ({
+    player: calculateTimeRemaining(
+      data.game.moves,
+      data.playerColor,
+      data.game.started_at,
+      data.game.timeControl
+    ),
+    opponent: calculateTimeRemaining(
+      data.game.moves,
+      data.playerColor === Color.White ? Color.Black : Color.White,
+      data.game.started_at,
+      data.game.timeControl
+    ),
+  });
 
   let timeRemaining = getTimeRemaining();
 
-  const timeRemainingInterval = setInterval(() => {
+  const timeRemainingInterval = setInterval(async () => {
     timeRemaining = getTimeRemaining();
+    if (timeRemaining.player <= 0) {
+      await checkForTime(data.game.id);
+      invalidateAll();
+    }
   }, 100);
 
   const makeMove = ({ origin, target }: Move) => {
@@ -57,18 +70,9 @@
     });
     game.try_move(origin, target);
 
-    game.board = game.board; // Trigger reactivity
+    // Trigger reactivity
+    game.board = game.board;
   };
-
-  const channel = getPusher().subscribe(gameChannel(unwrap(data.game.id)));
-  channel.bind(newMoveEventName, (move: NewMoveEventData) => {
-    const { origin, target } = move;
-
-    makeMove({
-      origin: new Vector(origin.x, origin.y),
-      target: new Vector(target.x, target.y),
-    });
-  });
 
   async function handleMove(move: Move) {
     const request = sendMove(data.game.id, move);
@@ -86,8 +90,27 @@
     game.board = game.board;
   }
 
+  let channel: Channel | null = null;
+  onMount(() => {
+    channel = getPusher().subscribe(gameChannel(unwrap(data.game.id)));
+
+    channel.bind(newMoveEventName, (move: NewMoveEventData) => {
+      const { origin, target } = move;
+
+      makeMove({
+        origin: new Vector(origin.x, origin.y),
+        target: new Vector(target.x, target.y),
+      });
+    });
+
+    channel.bind(gameFinishedEvent, () => {
+      clearInterval(timeRemainingInterval);
+      invalidateAll();
+    });
+  });
+
   onDestroy(() => {
-    channel.unbind_all();
+    channel?.unbind_all();
     clearInterval(timeRemainingInterval);
   });
 </script>
@@ -111,8 +134,9 @@
       />
     </div>
     <div class="grid place-content-center">
-      <span class="font-bold text-3xl">Your turn</span>
-      <span class="font-bold text-3xl">{timeRemaining}</span>
+      <span class="font-bold text-3xl">{formatTime(timeRemaining.opponent)}</span>
+      <span class="font-bold text-3xl">{data.game.moves.length % 2 === data.playerColor ? "Your" : "Opponent's"} turn</span>
+      <span class="font-bold text-3xl">{formatTime(timeRemaining.player)}</span>
     </div>
   </div>
 {:else}
