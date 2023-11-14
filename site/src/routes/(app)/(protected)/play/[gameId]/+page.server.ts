@@ -1,6 +1,8 @@
 import { Color } from "$engine/chessagon.js";
 import { db } from "$lib/db/index.js";
 import { games } from "$lib/db/schema";
+import { cancelGame } from "$lib/db/actions/server.js";
+import { getStatusFromCode } from "$lib/game/status.js";
 import { error, redirect } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 
@@ -18,6 +20,12 @@ export async function load({ parent, params }) {
 
   if (!game) {
     throw error(404, "Game not found");
+  }
+
+  // Redirect to archived game if it's finished
+  const gameStatus = getStatusFromCode(game.status_code);
+  if (gameStatus?.inProgress === false) {
+    throw redirect(303, `/game/${params.gameId}`);
   }
 
   // Find the player's color
@@ -42,6 +50,7 @@ export async function load({ parent, params }) {
     }
 
     playerColor = emptySpot === "white" ? Color.White : Color.Black;
+
     await db
       .update(games)
       .set({ [emptySpot]: session.user.id })
@@ -57,9 +66,9 @@ export async function load({ parent, params }) {
 }
 
 export const actions = {
-  cancelGame: async ({ params }) => {
-    await db.delete(games).where(eq(games.id, params.gameId));
+  cancelGame: async ({ params, locals }) => {
+    const session = await locals.auth.validate();
 
-    throw redirect(303, "/play");
+    await cancelGame(session.user.id, params.gameId);
   },
 };

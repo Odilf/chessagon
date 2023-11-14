@@ -1,3 +1,5 @@
+import type { Auth } from "lucia";
+
 declare global {
   declare namespace App {
     interface Locals {
@@ -21,7 +23,11 @@ declare namespace Lucia {
     names: string;
     last_names: string;
   };
-  type DatabaseSessionAttributes = {};
+  type DatabaseSessionAttributes = {
+    user: {
+      userId: string;
+    }
+  };
 }
 
 export {};

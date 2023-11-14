@@ -54,7 +54,7 @@
   setContext(alignmentKey, writable(Alignment.Horizontal));
 
   const dispatch = createEventDispatcher<{
-    move: { from: Vector; to: Vector };
+    move: { origin: Vector; target: Vector };
     selection: { piece: Piece | null };
   }>();
 
@@ -93,13 +93,13 @@ It has events for moves, but the moves may be invalid.
     {#each highlightPositions as position (position)}
       {@const [duration, delay] = highlightEasing(position)}
       <g class="indicator" transition:fade={{ duration, delay }}>
-        <!-- <g class="indicator" transition:scale={{ duration, delay }}> -->
+        <!-- <g class="indicator"> -->
         <Tile
           {flip}
           {position}
           on:click={() => {
             if (selected) {
-              dispatch("move", { from: selected.position, to: position });
+              dispatch("move", { origin: selected.position, target: position });
             }
           }}
         />

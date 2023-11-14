@@ -3,9 +3,10 @@ import { error } from "@sveltejs/kit";
 import { db } from "$lib/db/index.js";
 import { games, moves } from "$lib/db/schema.js";
 import { eq } from "drizzle-orm";
-import { pusher } from "$lib/pusher/index.js";
-import { gameChannel, newMoveEvent } from "$lib/pusher/events";
-import { gameFromMoves } from "../utils.js";
+import { pusher } from "$lib/pusher/server.js";
+import { gameChannel, newMoveEventName } from "$lib/pusher/events";
+import { gameFromMoves } from "$lib/wasmTypesGlue.js";
+import { receiveMove } from "$lib/db/actions/server";
 
 async function readBody(request: Request) {
   if (request.body === null) {
@@ -26,74 +27,11 @@ async function readBody(request: Request) {
 }
 
 export async function POST({ params, request, locals }) {
-  const [{ origin, target }, session] = await Promise.all([
+  const [move, session] = await Promise.all([
     readBody(request),
     locals.auth.validate(),
-  ])
+  ]);
 
-  const game = await db.query.games.findFirst({
-    columns: {
-      white: true,
-      black: true,
-      result_code: true,
-    },
-    where: eq(games.id, params.gameId),
-    with: {
-      white: {
-        columns: {
-          id: true,
-        }
-      },
-      black: {
-        columns: {
-          id: true,
-        }
-      },
-      moves: {
-        columns: {
-          origin_x: true,
-          origin_y: true,
-          target_x: true,
-          target_y: true,
-        }
-      }
-    },
-  });
-
-  if (!game) {
-    return new Response("Can't access game", { status: 400 });
-  }
-
-  const color = game.moves.length % 2 === 0 ? "white" : "black" as "white" | "black";
-
-  if (game[color]?.id !== session.user.id) {
-    return new Response("Not your game or turn", { status: 403 });
-  }
-
-  const board = gameFromMoves(game.moves.map(({ origin_x, origin_y, target_x, target_y }) => ({
-    origin: new Vector(origin_x, origin_y),
-    target: new Vector(target_x, target_y),
-  })));
-
-  if (!board.can_move(origin, target)) {
-    return new Response("Invalid move", { status: 400 });
-  }
-
-  await Promise.all([
-    db.insert(moves).values({
-      index: game.moves.length,
-      gameId: params.gameId,
-      origin_x: origin.x,
-      origin_y: origin.y,
-      target_x: target.x,
-      target_y: target.y,
-    }),
-
-    await pusher.trigger(gameChannel(params.gameId), newMoveEvent, {
-      origin,
-      target,
-    })
-  ])
-
+  await receiveMove(session.user.id, params.gameId, move);
   return new Response(null, { status: 200 });
 }

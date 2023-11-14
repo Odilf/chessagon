@@ -2,7 +2,7 @@
   "name": "chessagon",
   "version": "0.0.1",
   "scripts": {
-    "wasm-once": "wasm-pack build ../engine --out-dir ../site/.wasm-engine",
+    "wasm-once": "wasm-pack build --dev ../engine --out-dir ../site/.wasm-engine",
     "wasm": "find ../engine/ -name '*.rs' | entr pnpm wasm-once",
     "db-migrate": "pnpm exec drizzle-kit generate:sqlite && pnpm exec drizzle-kit push:sqlite",
     "dev": "vite dev",

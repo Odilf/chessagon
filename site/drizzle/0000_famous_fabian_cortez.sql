@@ -22,8 +22,8 @@ CREATE TABLE `users` (
 --> statement-breakpoint
 CREATE TABLE `games` (
 	`id` text PRIMARY KEY NOT NULL,
-	`created_at` integer NOT NULL,
-	`result_code` integer DEFAULT 0 NOT NULL,
+	`started_at` integer NOT NULL,
+	`status_code` integer DEFAULT 0 NOT NULL,
 	`white` text,
 	`black` text,
 	`tc_minutes` integer NOT NULL,
@@ -33,13 +33,13 @@ CREATE TABLE `games` (
 );
 --> statement-breakpoint
 CREATE TABLE `moves` (
-	`index` integer,
-	`game_id` text,
-	`from_x` integer NOT NULL,
-	`from_y` integer NOT NULL,
-	`to_x` integer NOT NULL,
-	`to_y` integer NOT NULL,
-	`timestamp` integer,
+	`index` integer NOT NULL,
+	`game_id` text NOT NULL,
+	`origin_x` integer NOT NULL,
+	`origin_y` integer NOT NULL,
+	`target_x` integer NOT NULL,
+	`target_y` integer NOT NULL,
+	`timestamp` integer NOT NULL,
 	PRIMARY KEY(`game_id`, `index`),
 	FOREIGN KEY (`game_id`) REFERENCES `games`(`id`) ON UPDATE no action ON DELETE cascade
 );

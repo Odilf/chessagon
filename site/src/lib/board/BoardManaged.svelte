@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GameState, Color, Piece, Vector } from "$engine/chessagon";
+  import type { Move } from "$lib/wasmTypesGlue";
   import { createEventDispatcher } from "svelte";
   import Board, { positions } from "./Board.svelte";
   import {
@@ -13,17 +14,17 @@
 
   let selected: Piece | null = null;
 
-  $: highlightPositions = positions.filter((position) =>
-    selected
-      ? selected.color === playerColor &&
-        (game.can_move(selected.position, position) ||
-          selected.position.toString() == position.toString()) // TODO: Uggo
-      : false,
+  $: highlightPositions = positions.filter(
+    (position) =>
+      selected &&
+      selected.color === playerColor &&
+      (game.can_move(selected.position, position) ||
+        selected.position.toString() == position.toString()), // TODO: Uggo
   );
 
   const dispath = createEventDispatcher<{
-    move: { from: Vector; to: Vector };
-    invalidMove: { from: Vector; to: Vector; reason: string };
+    move: Move;
+    invalidMove: { value: Move; reason: string };
     result:
       | { winner: Color; reason: WinReason }
       | { winner: null; reason: DrawReason };
@@ -42,12 +43,15 @@
   board={game.board}
   bind:selected
   {highlightPositions}
-  on:move={({ detail: { from, to } }) => {
+  on:move={({ detail: { origin, target } }) => {
     selected = null;
-    if (game.can_move(from, to)) {
-      dispath("move", { from, to });
+    if (game.can_move(origin, target)) {
+      dispath("move", { origin, target });
     } else {
-      dispath("invalidMove", { from, to, reason: "TODO: implement reason" });
+      dispath("invalidMove", {
+        value: { origin, target },
+        reason: "TODO: implement reason",
+      });
     }
   }}
 />

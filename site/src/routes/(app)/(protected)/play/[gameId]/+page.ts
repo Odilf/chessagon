@@ -9,10 +9,14 @@ export async function load({ data }) {
       isActive: game.white && game.black,
       timeControl: new TimeControl(game.tc_minutes, game.tc_increment),
       ...game,
-      moves: game.moves.map(({ origin_x, origin_y, target_x, target_y }) => ({
-        origin: new Vector(origin_x, origin_y),
-        target: new Vector(target_x, target_y),
-      })),
+      moves: game.moves.map(
+        ({ index, origin_x, origin_y, target_x, target_y, timestamp }) => ({
+          index,
+          origin: new Vector(origin_x, origin_y),
+          target: new Vector(target_x, target_y),
+          timestamp,
+        }),
+      ),
     },
     playerColor,
   };

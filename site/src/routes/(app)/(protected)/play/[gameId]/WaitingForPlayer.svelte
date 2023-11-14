@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Color } from "$engine/chessagon";
+  import { Color } from "$engine/chessagon";
   import type { TimeControl } from "$lib/timeControls";
 
   import Spinner from "$lib/utils/Spinner.svelte";
   import { createEventDispatcher } from "svelte";
   export let timeControl: TimeControl;
-  export let challenger: { color: Color | null };
+  export let host: { color: Color | null };
 
   $: expectedDuration = `${
     Math.round(timeControl.totalTime(40) * 4) / 4
@@ -23,9 +23,9 @@
   Expected duration: {expectedDuration} <br />
 </div>
 
-{#if challenger.color}
+{#if host.color !== null}
   <div>
-    You are playing as {challenger.color}
+    You are playing as {Color[host.color].toLowerCase()}
   </div>
 {/if}
 

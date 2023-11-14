@@ -2,7 +2,7 @@
   import { Color } from "$engine/chessagon";
   import type { TimeControl } from "$lib/timeControls";
 
-  export let challenger: { username: string; color: Color | null };
+  export let host: { username: string; color: Color | null };
   export let timeControl: TimeControl;
 </script>
 
@@ -12,11 +12,11 @@
 >
   <div>
     <span class="h2">{timeControl.toString()}</span>
-    <span class="h3 pl-2"> by {challenger.username} </span>
+    <span class="h3 pl-2"> by {host.username} </span>
   </div>
-  {#if challenger.color !== null}
+  {#if host.color !== null}
     <span class="">
-      As {Color[1 - challenger.color].toLocaleLowerCase()}
+      As {Color[1 - host.color].toLocaleLowerCase()}
     </span>
   {/if}
 </button>

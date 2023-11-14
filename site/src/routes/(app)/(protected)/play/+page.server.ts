@@ -1,53 +1,66 @@
 import { db } from "$lib/db/index.js";
-import { games, users } from "$lib/db/schema.js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { createId } from "@paralleldrive/cuid2";
-import { error, redirect } from "@sveltejs/kit";
-import { eq, or } from "drizzle-orm";
+import { redirect } from "@sveltejs/kit";
+import { joinGame } from "$lib/db/actions/server";
 
 export async function load({ parent }) {
   const { session } = await parent();
 
-  const [result] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .innerJoin(games, or(eq(games.white, users.id), eq(games.black, users.id)))
-    .limit(1);
+  console.log("loading play +page.server.ts");
+  
 
-  if (result) {
-    throw redirect(302, `/play/${result.games.id}`);
+  const games = await db.query.games.findMany({
+    columns: {
+      id: true,
+      tc_increment: true,
+      tc_minutes: true,
+    },
+    with: {
+      black: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+      white: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+      moves: {
+        columns: { index: true },
+      },
+    },
+  });
+
+  const userGame = games.find(
+    (game) =>
+      game.black?.id === session.user.id || game.white?.id === session.user.id,
+  );
+
+  if (userGame) {
+    throw redirect(302, `/play/${userGame.id}`);
   }
 
-  // TODO: Query all available games (or rather, game ids)
+  return {
+    games,
+  };
 }
 
-const timeControlSchema = zfd.formData({
-  minutes: zfd.numeric(z.number().int().nonnegative()),
-  increment: zfd.numeric(z.number().int().nonnegative()),
+const requestSchema = zfd.formData({
+  gameId: zfd.text(),
+  color: zfd.text(z.enum(["white", "black"])),
 });
 
 export const actions = {
-  createGame: async ({ request, locals }) => {
+  joinGame: async ({ request, locals }) => {
     const session = await locals.auth.validate();
-    if (!session) {
-      throw error(401, "Not logged in");
-    }
-
-    const { minutes, increment } = timeControlSchema.parse(
+    const { gameId, color } = await requestSchema.parseAsync(
       await request.formData(),
     );
-    const color = Math.random() > 0.5 ? "white" : "black";
-
-    const gameId = createId();
-    const result = await db.insert(games).values({
-      id: gameId,
-      tc_increment: increment,
-      tc_minutes: minutes,
-      [color]: session.user.id,
-    });
-
-    throw redirect(303, `/play/${gameId}`);
+    
+    await joinGame(session.user.id, gameId, color);
   },
 };

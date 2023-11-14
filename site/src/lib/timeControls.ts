@@ -23,20 +23,13 @@ export class TimeControl {
   }
 
   /**
-   * Returns the time remaining, in seconds.
+   * Returns the time that a player would have if they made every move instantly.
+   * The maximum time one can have with the given time control and move numeber.
    */
-  public timeRemaining(
-    timeStarted: Date,
-    moveNumber: number,
-    currentTime: Date = new Date(),
-  ) {
-    const timeElapsed = (currentTime.getTime() - timeStarted.getTime()) / 1000;
-    const timeRemaining =
-      this.minutes * 60 -
-      timeElapsed +
-      Math.floor(moveNumber / 2) * this.increment;
-
-    return timeRemaining;
+  // TODO: Color
+  public totalTimeAvailable(moveNumber: number, color: number) {
+    const increment = Math.ceil(moveNumber / 2 - color) * this.increment;
+    return this.minutes * 60 + increment;
   }
 }
 

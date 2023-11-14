@@ -1,91 +1,55 @@
 <script lang="ts">
   import { TimeControl, timeControls } from "$lib/timeControls";
   import GamePreview from "./GamePreview.svelte";
-  import { goto, invalidate } from "$app/navigation";
-  import type { Color } from "$engine/chessagon";
-  import { getToastStore } from "@skeletonlabs/skeleton";
-  import { enhance } from "$app/forms";
+  import { goto, invalidateAll } from "$app/navigation";
+  import { Color } from "$engine/chessagon";
   import todo from "ts-todo";
+  import { getPusher } from "$lib/pusher/client";
+  import { generalGameChannel, gameUpdateEvent } from "$lib/pusher/events";
+  import { fly } from "svelte/transition";
+  import { flip } from "svelte/animate";
+  import { onDestroy, onMount } from "svelte";
+  import type Pusher from "pusher";
+  import type { Channel } from "pusher-js";
 
   export let data;
 
-  const toastStore = getToastStore();
+  async function createGame(timeControl: TimeControl) {
+    const response = await fetch("/play/create-game", {
+      method: "post",
+      body: JSON.stringify({ timeControl }),
+    });
 
-  async function createGame(
-    timeControl: TimeControl,
-    color: Color | null = null,
-  ) {
-    // const { data, error } = await supabase
-    //   .from("live_games")
-    //   .insert({
-    //     tc_minutes: timeControl.minutes,
-    //     tc_increment: timeControl.increment,
-    //     challenger_id: session.user.id,
-    //     challenger_color: color ?? Math.floor(Math.random() * 2),
-    //   })
-    //   .select()
-    //   .single();
-    // if (error) {
-    //   toastStore.trigger({
-    //     message: formatError(error),
-    //     background: "variant-filled-error",
-    //   });
-    //   return;
-    // }
-    // if (data === null) {
-    //   toastStore.trigger({
-    //     message: "Selected game is `null`",
-    //     background: "variant-filled-error",
-    //   });
-    //   return;
-    // }
-    // goto(`/play/${data.id}`);
+    if (response.redirected) {
+      goto(response.url);
+    }
   }
 
-  async function joinGame(gameId: string) {
-    // const { error } = await supabase
-    //   .from("live_games")
-    //   .update({ acceptant_id: session.user.id, started_at: new Date().toISOString() })
-    //   .eq("id", gameId);
+  let channel: Channel | null = null;
+  onMount(() => {
+    channel = getPusher().subscribe(generalGameChannel);
 
-    // if (error) {
-    //   toastStore.trigger({
-    //     message: formatError(error),
-    //     background: "variant-filled-error",
-    //   });
+    channel.bind(gameUpdateEvent, (data: unknown) => {
+      console.log("new game", data);
+      invalidateAll();
+    });
+  });
 
-    //   return;
-    // }
-
-    await invalidate(`game:${gameId}`);
-    await goto(`/play/${gameId}`);
-  }
+  onDestroy(() => {
+    channel?.unbind(gameUpdateEvent);
+  });
 </script>
 
-<h1 class="h1 py-4">Select a time control</h1>
+<h1 class="h1 py-8">Select a time control</h1>
 
 <div class="grid grid-cols-4 gap-3">
   {#each timeControls as timeControl}
-    <form action="?/createGame" method="post" use:enhance>
-      <button
-        class="card btn h3 variant-outline-secondary flex flex-col w-full"
-      >
-        {timeControl.toString()}
-      </button>
-
-      <input
-        type="number"
-        name="increment"
-        value={timeControl.increment}
-        class="hidden"
-      />
-      <input
-        type="number"
-        name="minutes"
-        value={timeControl.minutes}
-        class="hidden"
-      />
-    </form>
+    <button
+      class="card btn h3 variant-outline-secondary flex flex-col w-full"
+      on:click={() => createGame(timeControl)}
+    >
+      {timeControl.toString()}
+    </button>
   {/each}
 
   <button
@@ -99,22 +63,29 @@
 <h2 class="h2 pt-8 pb-4">...or join an existing game</h2>
 
 <div class="flex flex-wrap gap-4">
-  <!-- {#await data.games}
-    <span> Loading games... </span>
-  {:then response}
-    {@const games = handleSupabaseResponse(response)}
-    {#each games ?? [] as game}
-      <!-- {#each data.games ?? [] as game} --!>
-      {@const timeControl = new TimeControl(game.tc_minutes, game.tc_increment)}
+  {#each data.games ?? [] as game (game.id)}
+    <form
+      transition:fly={{ y: 50 }}
+      animate:flip
+      method="post"
+      action="?/joinGame"
+    >
       <GamePreview
-        {timeControl}
-        challenger={{
-          username:
-            game.profiles?.username ?? "deleted account (TODO: check this)",
-          color: game.challenger_color,
-        }}
-        on:click={() => joinGame(game.id)}
+        timeControl={game.timeControl}
+        host={game.host}
+        on:click={() => todo()}
       />
-    {/each}
-  {/await} -->
+
+      <input type="hidden" name="gameId" value={game.id} />
+      <input
+        type="hidden"
+        name="color"
+        value={Color[1 - game.host.color].toLowerCase()}
+      />
+    </form>
+  {:else}
+    <div class="opacity-50 py-8 text-center text-balance">
+      Games will appear here when someone creates one
+    </div>
+  {/each}
 </div>
