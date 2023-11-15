@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { Color } from "$engine/chessagon";
   import BoardManaged from "$lib/board/BoardManaged.svelte";
   import type { GameStore } from "$lib/board/gameStore";
-  import { getStatusFromCode } from "$lib/game/status";
-  import {
-    calculateTimeRemaining,
-    formatTime,
-    TimeControl,
-  } from "$lib/timeControls";
+  import type { TimeControl } from "$lib/timeControls";
+  import type { Color } from "$engine/chessagon";
   import type { Move } from "$lib/wasmTypesGlue";
-  import { createEventDispatcher, onDestroy } from "svelte";
+  import Clock from "./Clock.svelte";
+  import { getModalStore } from "@skeletonlabs/skeleton";
+  import todo from "ts-todo";
+  import { IN_PROGRESS } from "$lib/game/status";
 
   export let game: {
     id: string;
@@ -21,55 +19,68 @@
 
   export let gameStore: GameStore;
 
-  const dispatch = createEventDispatcher<{ outOfTime: void }>();
+  const modal = getModalStore();
 
-  let board: BoardManaged;
+  function offerDraw() {
+    modal.trigger({
+      type: "confirm",
+      title: "Are you sure you want to offer a draw?",
+      modalClasses: "w-fit",
+      response: (response) => {
+        if (response) {
+          // TODO: Implement draw offer
+          todo();
+        }
+      },
+    });
+  }
 
-  const getTimeRemaining = () => ({
-    player: calculateTimeRemaining(
-      game.moves,
-      game.playerColor,
-      game.timeControl,
-    ),
-    opponent: calculateTimeRemaining(
-      game.moves,
-      game.playerColor === Color.White ? Color.Black : Color.White,
-      game.timeControl,
-    ),
-  });
-
-  let timeRemaining = getTimeRemaining();
-
-  const timeRemainingInterval = setInterval(async () => {
-    timeRemaining = getTimeRemaining();
-    
-    if (timeRemaining.player <= 0 || timeRemaining.opponent <= 0) {
-      dispatch("outOfTime");
-      clearInterval(timeRemainingInterval);
-    }
-  }, 100);
-
-  onDestroy(() => {
-    clearInterval(timeRemainingInterval);
-  });
+  function resign() {
+    modal.trigger({
+      type: "confirm",
+      title: "Are you sure you want to resign?",
+      modalClasses: "w-fit",
+      response: (response) => {
+        if (response) {
+          // TODO: Implement resigning
+          todo();
+        }
+      },
+    });
+  }
 </script>
 
-<div class="w-full h-full flex flex-col md:flex-row justify-around">
-  <div class="board-wrapper px-2 md:px-0 py-4 overflow-hidden flex-shrink">
-    <BoardManaged
-      bind:this={board}
-      on:move
-      game={gameStore}
-      playerColor={game.playerColor}
-    />
+<div class="w-full h-full flex flex-col md:flex-row justify-around md:gap-4">
+  <div
+    class="board-wrapper md:px-2 order-2 md:order-1 py-4 overflow-hidden flex-shrink"
+  >
+    <BoardManaged on:move game={gameStore} playerColor={game.playerColor} />
   </div>
 
-  <div class="grid place-content-center">
-    <span class="font-bold text-3xl">{formatTime(timeRemaining.opponent)}</span>
-    <span class="font-bold text-3xl"
-      >{board?.turn() === "player" ? "Your" : "Opponent's"} turn</span
-    >
-    <span class="font-bold text-3xl">{formatTime(timeRemaining.player)}</span>
+  <div
+    class="flex flex-col gap-2 md:gap-4 order-1 md:order-2 w-full md:w-fit px-4 my-auto"
+  >
+    <div class="pt-2">
+      <Clock
+        moves={game.status_code === IN_PROGRESS ? $gameStore.allMoves : $gameStore.viewingMoves}
+        timeControl={game.timeControl}
+        playerColor={game.playerColor}
+        on:outOfTime
+        currentlyRunning={game.status_code === IN_PROGRESS}
+      />
+    </div>
+
+    <div class="w-full flex gap-2">
+      <button class="btn variant-soft-secondary flex-1" on:click={offerDraw}>
+        Offer draw
+      </button>
+      <button
+        class="btn variant-soft-tertiary flex-1"
+        on:click={resign}
+      >
+        Resign
+      </button>
+    </div>
   </div>
 </div>
 

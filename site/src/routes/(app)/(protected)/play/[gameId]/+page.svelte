@@ -25,6 +25,7 @@
   export let data;
 
   let gameStore = createGameStore(data.game.moves);
+  
   // $: status = getStatusFromCode($gameStore.state.status_code())!;
   $: status = getStatusFromCode(data.game.status_code)!;
 
