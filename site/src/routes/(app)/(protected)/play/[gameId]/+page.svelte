@@ -25,7 +25,8 @@
   export let data;
 
   let gameStore = createGameStore(data.game.moves);
-  $: status = getStatusFromCode($gameStore.state.status_code())!;
+  // $: status = getStatusFromCode($gameStore.state.status_code())!;
+  $: status = getStatusFromCode(data.game.status_code)!;
 
   async function handleMove(move: Move) {
     const request = sendMove(data.game.id, move);

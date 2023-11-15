@@ -15,7 +15,6 @@
     id: string;
     status_code: number;
     moves: (Move & { timestamp: Date })[];
-    started_at: Date;
     timeControl: TimeControl;
     playerColor: Color;
   };
@@ -30,13 +29,11 @@
     player: calculateTimeRemaining(
       game.moves,
       game.playerColor,
-      game.started_at,
       game.timeControl,
     ),
     opponent: calculateTimeRemaining(
       game.moves,
       game.playerColor === Color.White ? Color.Black : Color.White,
-      game.started_at,
       game.timeControl,
     ),
   });
@@ -45,7 +42,7 @@
 
   const timeRemainingInterval = setInterval(async () => {
     timeRemaining = getTimeRemaining();
-
+    
     if (timeRemaining.player <= 0 || timeRemaining.opponent <= 0) {
       dispatch("outOfTime");
       clearInterval(timeRemainingInterval);

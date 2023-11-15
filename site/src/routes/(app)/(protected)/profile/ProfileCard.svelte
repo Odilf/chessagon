@@ -3,7 +3,6 @@
 
   export let username: string;
   export let rating: number;
-  export let img: string | null;
 
   const dispatch = createEventDispatcher<{ logout: null }>();
 </script>
@@ -17,11 +16,6 @@
         <div class="flex-1" />
       </div>
     </div>
-
-    <!-- TODO: Handle null image -->
-    {#if img}
-      <img src={img} alt="Profile" class="w-32 h-32 rounded-lg" />
-    {/if}
   </div>
 
   <button

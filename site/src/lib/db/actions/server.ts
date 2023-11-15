@@ -22,6 +22,7 @@ import {
   type Status,
 } from "$lib/game/status";
 import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
+import { log } from "console";
 
 export async function joinGame(
   userId: string,
@@ -82,7 +83,6 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
       white: true,
       black: true,
       status_code: true,
-      started_at: true,
       tc_minutes: true,
       tc_increment: true,
     },
@@ -100,13 +100,14 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     },
   });
 
-  if (!game || getStatusFromCode(game.status_code)?.inProgress === false) {
-    return new Response("Can't access game", { status: 400 });
+  if (!game) {
+    throw error(400, "Can't access game");
   }
 
   const color: Color = game.moves.length % 2 === 0 ? "white" : "black";
 
   if (game[color] !== userId) {
+    console.log("not the game");
     throw error(403, "Not your turn");
   }
 
@@ -116,20 +117,19 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
   const timeRemaining = calculateTimeRemaining(
     game.moves,
     colorEnum,
-    game.started_at,
     TimeControl.fromDatabase(game),
   );
 
   if (timeRemaining < 0) {
-    const status = {
+    const status_code = getCodeFromStatus({
       inProgress: false,
       winner: colorEnum,
       reason: "out_of_time",
-    } satisfies Status;
+    });
 
     await db
       .update(games)
-      .set({ status_code: getCodeFromStatus(status) })
+      .set({ status_code })
       .where(eq(games.id, gameId));
 
     pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
@@ -170,7 +170,7 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
   pusher.trigger(gameChannel(gameId), newMoveEventName, {
     origin,
     target,
-  });
+  });  
 }
 
 export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
@@ -179,7 +179,6 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
       white: true,
       black: true,
       status_code: true,
-      started_at: true,
       tc_minutes: true,
       tc_increment: true,
     },
@@ -191,18 +190,18 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
         },
       },
     },
-  });
+  });  
 
-  if (!game || getStatusFromCode(game.status_code)?.inProgress === false) {
-    return new Response("Can't access game", { status: 400 });
+  if (!game) {
+    throw error(400, "Can't access game");
   }
 
+  
   const color = game.moves.length % 2 === 0 ? ColorEnum.White : ColorEnum.Black;
 
   const timeRemaining = calculateTimeRemaining(
     game.moves,
     color,
-    game.started_at,
     TimeControl.fromDatabase(game),
   );
 
@@ -210,15 +209,15 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
     return false;
   }
 
-  const status = {
+  const status_code = getCodeFromStatus({
     inProgress: false,
     winner: 1 - color,
     reason: "out_of_time",
-  } satisfies Status;
+  });
 
   await db
     .update(games)
-    .set({ status_code: getCodeFromStatus(status) })
+    .set({ status_code })
     .where(eq(games.id, gameId));
 
   pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});

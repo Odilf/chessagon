@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 
 export const games = sqliteTable("games", {
   id: text("id").primaryKey(),
-  started_at: integer("started_at", { mode: "timestamp" })
+  created_at: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$default(() => new Date()),
   status_code: integer("status_code").notNull().default(0),

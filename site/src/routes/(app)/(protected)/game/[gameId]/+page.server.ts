@@ -13,7 +13,6 @@ export async function load({ parent, params }) {
       tc_increment: true,
       tc_minutes: true,
       status_code: true,
-      started_at: true,
     },
     where: eq(games.id, params.gameId),
     with: {

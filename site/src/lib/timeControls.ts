@@ -85,10 +85,9 @@ export function formatTime(seconds: number): string {
 export function calculateTimeRemaining(
   moves: { timestamp: Date }[],
   color: Color,
-  timeStarted: Date,
   timeControl: TimeControl,
 ): number {
-  const timeElapsed = calculateTimeElapsed(moves, color, timeStarted);
+  const timeElapsed = calculateTimeElapsed(moves, color);
   const totalTime = timeControl.totalTimeAvailable(moves.length, color);
 
   return totalTime - timeElapsed;
@@ -100,18 +99,12 @@ export function calculateTimeRemaining(
 export function calculateTimeElapsed(
   moves: { timestamp: Date }[],
   color: Color,
-  timeStarted: Date,
-): number {
-  // console.log(moves);
-
+): number {  
   let timestamps = moves.map((move) => move.timestamp.getTime());
-
-  // Boundary conditions
-  timestamps[-1] = timeStarted.getTime();
   timestamps[timestamps.length] = Date.now();
 
   let output = 0;
-  for (let i = color; i <= moves.length; i += 2) {
+  for (let i = 2 - color; i <= moves.length; i += 2) {
     output += timestamps[i] - timestamps[i - 1];
   }
 
