@@ -107,7 +107,7 @@ It has events for moves, but the moves may be invalid.
     {/each}
   </g>
 
-  <g id="pieces">
+  <g id="pieces" class="touch-none">
     {#each [Color.White, Color.Black] as color}
       <g class={playerColor == color ? "player" : "opponent"}>
         {#each piecesOf(color) as piece (piece)}

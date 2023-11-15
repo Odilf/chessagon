@@ -36,7 +36,7 @@ export async function load({ parent }) {
     where: and(
       eq(gamesTable.status_code, IN_PROGRESS),
       or(
-        isNull(gamesTable.white), 
+        isNull(gamesTable.white),
         isNull(gamesTable.black),
         eq(gamesTable.white, session.user.id),
         eq(gamesTable.black, session.user.id),

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GameState, Color, Piece, Vector } from "$engine/chessagon";
+  import type { Color, Piece } from "$engine/chessagon";
   import type { Move } from "$lib/wasmTypesGlue";
   import { createEventDispatcher } from "svelte";
   import Board, { positions } from "./Board.svelte";
@@ -8,18 +8,23 @@
     type DrawReason,
     type WinReason,
   } from "$lib/game/status";
+  import type { GameStore } from "./gameStore";
 
-  export let game: GameState;
+  export let game: GameStore;
   export let playerColor: Color;
+
+  export const turn = () =>
+    game.turn() === playerColor ? ("player" as const) : ("opponent" as const);
 
   let selected: Piece | null = null;
 
   $: highlightPositions = positions.filter(
     (position) =>
       selected &&
+      $game.moveIndex === $game.allMoves.length &&
       selected.color === playerColor &&
-      (game.can_move(selected.position, position) ||
-        selected.position.toString() == position.toString()), // TODO: Uggo
+      ($game.state.can_move(selected.position, position) ||
+        selected.position.toString() == position.toString()) // TODO: Uggo
   );
 
   const dispath = createEventDispatcher<{
@@ -30,28 +35,45 @@
       | { winner: null; reason: DrawReason };
   }>();
 
-  $: status = getStatusFromCode(game.status_code());
-  $: if (!status?.inProgress) {
-    if (status?.winner) {
-      dispath("result", { winner: status.winner, reason: status.reason });
+  $: status = getStatusFromCode($game.state.status_code());
+  $: if (status && !status.inProgress) {
+    dispath("result", status);
+  }
+
+  export function makeMove(move: Move) {
+    if (turn() === "player") {
+      selected = null;
     }
+
+    try {
+      game.makeMove(move);
+    } catch (err) {
+      dispath("invalidMove", {
+        value: move,
+        reason: "TODO: implement reason",
+      });
+
+      return;
+    }
+
+    dispath("move", move);
   }
 </script>
 
-<Board
-  {playerColor}
-  board={game.board}
-  bind:selected
-  {highlightPositions}
-  on:move={({ detail: { origin, target } }) => {
-    selected = null;
-    if (game.can_move(origin, target)) {
-      dispath("move", { origin, target });
-    } else {
-      dispath("invalidMove", {
-        value: { origin, target },
-        reason: "TODO: implement reason",
-      });
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === "ArrowRight") {
+      game.updateMoveIndex((i) => i + 1);
+    } else if (e.key === "ArrowLeft") {
+      game.updateMoveIndex((i) => i - 1);
     }
   }}
+/>
+
+<Board
+  {playerColor}
+  board={$game.state.board}
+  bind:selected
+  {highlightPositions}
+  on:move={({ detail: move }) => makeMove(move)}
 />

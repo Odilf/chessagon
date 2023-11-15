@@ -84,3 +84,48 @@ export function getCodeFromStatus(status: Status): number {
 }
 
 export const IN_PROGRESS = 0 as const;
+
+function formatWin(reason: WinReason, color: Color) {
+  switch (reason) {
+    case "checkmate":
+      return "By checkmate";
+    case "out_of_time":
+      return `${Color[1 - color]} ran out of time`;
+  }
+}
+
+function formatDraw(reason: DrawReason) {
+  switch (reason) {
+    case "agreement":
+      return "By agreement";
+    case "stalemate":
+      return "By stalemate";
+    case "insufficient_material":
+      return "By insufficient material";
+    case "threefold_repetition":
+      return "By threefold repetition";
+    case "fifty_rule_move":
+      return "By fifty rule move";
+  }
+}
+
+export function formatStatus(status: Status) {
+  if (status.inProgress) {
+    return {
+      title: "In progress",
+      subtitle: "Game is in progress",
+    };
+  }
+
+  if (status.winner !== null) {
+    return {
+      title: `${Color[status.winner]} won`,
+      subtitle: formatWin(status.reason, status.winner),
+    }
+  }
+
+  return {
+    title: "Draw",
+    subtitle: formatDraw(status.reason),
+  }
+}

@@ -3,9 +3,9 @@
   import Board from "$lib/board/Board.svelte";
   import { gameFromMoves } from "$lib/wasmTypesGlue.js";
 
-	export let data;
+  export let data;
 
-	let gameState = gameFromMoves(data.game.moves);
+  let gameState = gameFromMoves(data.game.moves);
 </script>
 
-<Board playerColor={Color.White}  />
+<Board playerColor={Color.White} />

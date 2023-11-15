@@ -8,6 +8,7 @@ import { pusher } from "$lib/pusher/server";
 import {
   gameChannel,
   gameFinishedEvent,
+  gameStartedEvent,
   gameUpdateEvent,
   generalGameChannel,
   newMoveEventName,
@@ -17,6 +18,7 @@ import { Color as ColorEnum } from "$engine/chessagon";
 import {
   getCodeFromStatus,
   getStatusFromCode,
+  IN_PROGRESS,
   type Status,
 } from "$lib/game/status";
 import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
@@ -37,7 +39,7 @@ export async function joinGame(
     throw error(403, "Game is full");
   }
 
-  pusher.trigger(generalGameChannel, gameUpdateEvent, {});
+  pusher.trigger(gameChannel(gameId), gameStartedEvent, {});
 
   throw redirect(302, `/play/${gameId}`);
 }
@@ -152,17 +154,15 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     target_y: target.y,
   });
 
-  const promises = [insertMovePromise];
+  const promises: Promise<unknown>[] = [insertMovePromise];
 
-  if (game.moves.length === 0) {
-    const updateGameTimePromise = db
+  if (game.status_code !== IN_PROGRESS) {
+    const updateGameStatusPromise = db
       .update(games)
-      .set({ started_at: new Date() })
+      .set({ status_code: game.status_code })
       .where(eq(games.id, gameId));
 
-    // TODO: Why doesn't this work 😭😭😭
-    // promises.push(updateGameTimePromise);
-    await updateGameTimePromise;
+    promises.push(updateGameStatusPromise);
   }
 
   await Promise.all(promises);
@@ -212,7 +212,7 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
 
   const status = {
     inProgress: false,
-    winner: color,
+    winner: 1 - color,
     reason: "out_of_time",
   } satisfies Status;
 

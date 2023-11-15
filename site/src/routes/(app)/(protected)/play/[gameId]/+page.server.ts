@@ -1,6 +1,6 @@
 import { Color } from "$engine/chessagon.js";
 import { db } from "$lib/db/index.js";
-import { games } from "$lib/db/schema";
+import { games, moves } from "$lib/db/schema";
 import { cancelGame } from "$lib/db/actions/server.js";
 import { error } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
@@ -15,6 +15,8 @@ export async function load({ parent, params }) {
       black: true,
       moves: true,
     },
+    // TODO: Order by index
+    // orderBy: moves.index
   });
 
   if (!game) {

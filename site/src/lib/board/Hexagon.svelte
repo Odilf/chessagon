@@ -18,8 +18,8 @@
   {fill}
   on:click
   on:keypress
-  role="button"
   tabindex="0"
+  role="button"
 />
 
 <style>

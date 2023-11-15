@@ -11,7 +11,7 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   export let timeControl: TimeControl;
   export let host: { color: Color | null };
-  export let gameId: string
+  export let gameId: string;
 
   $: expectedDuration = `${
     Math.round(timeControl.totalTime(40) * 4) / 4
@@ -24,12 +24,12 @@
     channel = getPusher().subscribe(gameChannel(gameId));
     channel.bind(gameStartedEvent, () => {
       invalidateAll();
-    })
-  })
+    });
+  });
 
   onDestroy(() => {
     channel?.unbind_all();
-  })
+  });
 </script>
 
 <h1 class="text-2xl text-balance pt-8">Waiting for a player to join...</h1>

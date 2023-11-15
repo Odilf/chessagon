@@ -34,7 +34,13 @@ export class TimeControl {
     return this.minutes * 60 + increment;
   }
 
-  public static fromDatabase({ tc_increment, tc_minutes }: { tc_increment: number, tc_minutes: number }) {
+  public static fromDatabase({
+    tc_increment,
+    tc_minutes,
+  }: {
+    tc_increment: number;
+    tc_minutes: number;
+  }) {
     return new TimeControl(tc_minutes, tc_increment);
   }
 }
@@ -55,7 +61,7 @@ export const timeControls: readonly TimeControl[] = [
 
 /**
  * Formats a number as MM:SS. Throws if the number is too large.
- * 
+ *
  * Returns 00:00 if the number is negative.
  */
 export function formatTime(seconds: number): string {
@@ -96,6 +102,8 @@ export function calculateTimeElapsed(
   color: Color,
   timeStarted: Date,
 ): number {
+  // console.log(moves);
+
   let timestamps = moves.map((move) => move.timestamp.getTime());
 
   // Boundary conditions

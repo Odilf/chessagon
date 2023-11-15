@@ -10,8 +10,7 @@ export async function load({ data }) {
       timeControl: new TimeControl(game.tc_minutes, game.tc_increment),
       ...game,
       moves: game.moves.map(
-        ({ index, origin_x, origin_y, target_x, target_y, timestamp }) => ({
-          index,
+        ({ origin_x, origin_y, target_x, target_y, timestamp }) => ({
           origin: new Vector(origin_x, origin_y),
           target: new Vector(target_x, target_y),
           timestamp,
