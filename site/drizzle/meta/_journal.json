@@ -15,6 +15,13 @@
       "when": 1700079591986,
       "tag": "0001_mixed_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700133527449,
+      "tag": "0002_long_tarot",
+      "breakpoints": true
     }
   ]
 }

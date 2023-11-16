@@ -1,12 +1,12 @@
 import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "..";
-import { games, moves } from "../schema";
+import { drawOffers, games, moves } from "../schema";
 import { error, redirect } from "@sveltejs/kit";
 import type { Color, Move } from "$lib/wasmTypesGlue";
 import { createId } from "@paralleldrive/cuid2";
 import { pusher } from "$lib/pusher/server";
 import {
-  drawOffer,
+  drawOfferEvent,
   gameChannel,
   gameFinishedEvent,
   gameStartedEvent,
@@ -227,7 +227,7 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
   return true;
 }
 
-export async function offerDraw(userId: string, gameId: string, playerColor: ColorEnum) {
+export async function offerDraw(userId: string, gameId: string) {
   const game = await db.query.games.findFirst({
     columns: {
       white: true,
@@ -240,9 +240,38 @@ export async function offerDraw(userId: string, gameId: string, playerColor: Col
     throw error(400, "Can't access game");
   }
 
-  todo();
+  const color = game.white === userId ? ColorEnum.White : ColorEnum.Black;
+  
+  await db.insert(drawOffers).values({
+    gameId,
+    from: color,
+  });
 
-  pusher.trigger(gameChannel(gameId), drawOffer(playerColor), {});
+  pusher.trigger(gameChannel(gameId), drawOfferEvent(color), {});
+}
+
+export async function acceptDraw(userId: string, gameId: string) {
+  const drawOffer = await db.query.drawOffers.findFirst({
+    where: and(eq(drawOffers.gameId, gameId)),
+  });
+
+  if (!drawOffer) {
+    throw error(400, "Draw has not been offered");
+  }
+
+  const acceptantColor = (1 - drawOffer.from === ColorEnum.White) ? "white" as const : "black" as const;
+
+  const status_code = getCodeFromStatus({
+    inProgress: false,
+    winner: null,
+    reason: "agreement",
+  });
+
+  await db.update(games).set({
+    status_code,
+  }).where(and(eq(games.id, gameId), eq(games[acceptantColor], userId)));
+
+  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 }
 
 export async function resign(userId: string, gameId: string) {

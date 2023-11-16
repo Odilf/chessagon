@@ -1,7 +1,5 @@
 <script lang="ts">
   import GameOverScreen from "./GameOverScreen.svelte";
-
-  import { getStatusFromCode } from "$lib/game/status";
   import { Color, Vector } from "$engine/chessagon";
   import { onDestroy, onMount } from "svelte";
   import WaitingForPlayer from "./WaitingForPlayer.svelte";
@@ -13,43 +11,71 @@
     type NewMoveEventData,
     gameFinishedEvent,
     gameStartedEvent,
-    drawOffer,
-    resignation,
+    drawOfferEvent,
   } from "$lib/pusher/events";
   import type { Channel } from "pusher-js";
   import { invalidateAll } from "$app/navigation";
   import LiveBoard from "./LiveBoard.svelte";
   import type { Move } from "$lib/wasmTypesGlue";
-  import { checkForTime, sendMove } from "$lib/db/actions/client";
+  import {
+    acceptDraw,
+    checkForTime,
+    sendMove,
+    sendResignation,
+  } from "$lib/db/actions/client";
   import { createGameStore } from "$lib/board/gameStore";
   import { getPusher } from "$lib/pusher/client";
+  import { offerDraw } from "$lib/db/actions/client";
   import { getToastStore } from "@skeletonlabs/skeleton";
-  import todo from "ts-todo";
 
   export let data;
 
   let gameStore = createGameStore(data.game.moves);
 
-  // $: status = getStatusFromCode($gameStore.state.status_code())!;
-  $: status = getStatusFromCode(data.game.status_code)!;
+  const toastStore = getToastStore();
 
   async function handleMove(move: Move) {
     const request = sendMove(data.game.id, move);
 
     gameStore.makeMove(move);
 
-    // TODO: Show some feedback when erroring
     const response = await request;
     if (!response.ok) {
       gameStore.undoLastMove();
-      console.warn(response.statusText);
+      console.warn("move send went wrong", response.statusText);
+      toastStore.trigger({
+        message: `Something went wrong when sending move (${response.statusText})`,
+      });
     }
   }
 
-  const toastStore = getToastStore();
+  function subscribeToInGameEvents() {
+    console.log("subscribing to in game events");
+    console.log("channel", channel);
+
+    if (!channel) {
+      throw new Error("unreachable (open issue if you encounter this)");
+    }
+    
+    channel.bind(gameFinishedEvent, () => {
+      console.log("game finished");
+
+      invalidateAll();
+    });
+
+    channel.bind(drawOfferEvent(1 - data.playerColor), () => {
+      console.log("draw offer received");
+      invalidateAll();
+    });
+
+    console.log(channel?.callbacks);
+    
+  }
 
   let channel: Channel | null = null;
   onMount(() => {
+    console.log("running onMount");
+    
     channel = getPusher().subscribe(gameChannel(unwrap(data.game.id)));
 
     channel.bind(newMoveEventName, (move: NewMoveEventData) => {
@@ -61,21 +87,16 @@
       });
     });
 
-    channel.bind(gameStartedEvent, () => {
-      invalidateAll();
-    });
-
-    channel.bind(gameFinishedEvent, () => {
-      invalidateAll();
-    });
-
-    channel.bind(drawOffer(1 - data.playerColor), () => {
-      todo();
-    });
-
-    channel.bind(resignation, () => {
-      invalidateAll();
-    })
+    if (data.game.isActive) {
+      subscribeToInGameEvents();
+    } else {
+      channel.bind(gameStartedEvent, async () => {
+        console.log("game started");
+        
+        await invalidateAll();
+        subscribeToInGameEvents();
+      });
+    }
   });
 
   onDestroy(() => {
@@ -86,7 +107,7 @@
 {#if data.game.isActive}
   <div class="h-full w-full max-h-full relative">
     <GameOverScreen
-      {status}
+      status={data.game.status}
       gameId={data.game.id}
       overrideHide={$gameStore.moveIndex !== data.game.moves.length}
     />
@@ -97,10 +118,19 @@
         playerColor: data.playerColor,
       }}
       {gameStore}
+      drawOffer={data.game.drawOffers}
       on:move={({ detail: move }) => handleMove(move)}
       on:outOfTime={async () => {
         await checkForTime(data.game.id);
         await invalidateAll();
+      }}
+      on:resignation={async () => await sendResignation(data.game.id)}
+      on:drawOffer={async () => {
+        await offerDraw(data.game.id);
+        data.game.drawOffers = { from: data.playerColor };
+      }}
+      on:drawAccepted={async () => {
+        await acceptDraw(data.game.id);
       }}
     />
   </div>

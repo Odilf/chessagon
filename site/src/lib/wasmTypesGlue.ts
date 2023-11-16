@@ -1,7 +1,7 @@
-import { GameState, Vector, type Color as ColorEnum } from "$engine/chessagon";
-import type { TimeControl } from "./timeControls";
+import { GameState, Vector} from "$engine/chessagon";
 
 export type Move = { origin: Vector; target: Vector };
+export type MoveTimestamped = Move & { timestamp: Date };
 export type Color = "white" | "black";
 
 /**

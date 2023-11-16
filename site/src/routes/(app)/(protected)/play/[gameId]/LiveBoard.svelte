@@ -3,49 +3,40 @@
   import type { GameStore } from "$lib/board/gameStore";
   import type { TimeControl } from "$lib/timeControls";
   import type { Color } from "$engine/chessagon";
-  import type { Move } from "$lib/wasmTypesGlue";
+  import type { Move, MoveTimestamped } from "$lib/wasmTypesGlue";
   import Clock from "./Clock.svelte";
-  import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+  import { getModalStore } from "@skeletonlabs/skeleton";
   import type { Status } from "$lib/game/status";
-  import {
-    offerDraw as sendOfferDraw,
-    sendResignation,
-  } from "$lib/db/actions/client";
+  import { createEventDispatcher } from "svelte";
+  import todo from "ts-todo";
 
   export let game: {
     id: string;
     status: Status;
-    moves: (Move & { timestamp: Date })[];
+    moves: MoveTimestamped[];
     timeControl: TimeControl;
     playerColor: Color;
   };
 
   export let gameStore: GameStore;
+  export let drawOffer: { from: Color } | null;
 
   const modalStore = getModalStore();
-  const toastStore = getToastStore();
 
-  function offerDraw() {
-    modalStore.trigger({
-      type: "confirm",
-      title: "Are you sure you want to offer a draw?",
-      modalClasses: "w-fit",
-      response: async (response) => {
-        if (response) {
-          await sendOfferDraw(game.id, game.playerColor);
-        }
-      },
-    });
-  }
+  const dispatch = createEventDispatcher<{
+    drawOffer: void;
+    drawAccepted: void;
+    resignation: void;
+  }>();
 
   function resign() {
     modalStore.trigger({
       type: "confirm",
       title: "Are you sure you want to resign?",
       modalClasses: "w-fit",
-      response: async (response) => {
+      response: (response) => {
         if (response) {
-          await sendResignation(game.id);
+          dispatch("resignation");
         }
       },
     });
@@ -75,9 +66,22 @@
     </div>
 
     <div class="w-full flex gap-2">
-      <button class="btn variant-soft-secondary flex-1" on:click={offerDraw}>
-        Offer draw
-      </button>
+      {#if drawOffer}
+        {#if drawOffer.from === game.playerColor}
+          <button class="btn variant-soft-secondary flex-1" disabled>
+            Undo offer TODO
+          </button>
+        {:else}
+          <button class="btn variant-ghost-warning flex-1" on:click={() => dispatch("drawAccepted")}>
+              Accept draw
+          </button>
+        {/if}
+      {:else}
+        <button class="btn variant-soft-secondary flex-1" on:click={() => dispatch("drawOffer")}>
+          Offer draw
+        </button>
+      {/if}
+
       <button class="btn variant-soft-tertiary flex-1" on:click={resign}>
         Resign
       </button>

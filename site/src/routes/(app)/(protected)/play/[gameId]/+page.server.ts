@@ -14,6 +14,11 @@ export async function load({ parent, params }) {
       white: true,
       black: true,
       moves: true,
+      drawOffers: {
+        columns: {
+          from: true,
+        }
+      },
     },
     // TODO: Order by index
     // orderBy: moves.index

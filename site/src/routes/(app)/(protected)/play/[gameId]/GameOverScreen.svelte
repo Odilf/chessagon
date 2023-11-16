@@ -22,7 +22,7 @@
 <div
   class="{show
     ? 'opacity-100'
-    : 'opacity-0 pointer-events-none'} transition duration-1000 absolute w-full h-full grid gap-4 place-content-center backdrop-blur-lg backdrop-brightness-50 px-2"
+    : 'opacity-0 pointer-events-none'} transition duration-1000 absolute w-full h-full grid gap-4 place-content-center backdrop-blur-lg backdrop-brightness-50 px-2 z-20"
 >
   <h1 class="text-8xl font-black text-center">
     {title}

@@ -16,5 +16,4 @@ export type NewMoveEventData = {
 };
 
 export const gameFinishedEvent = "game-finished";
-export const drawOffer = (from: Color) => `draw-offer-${from}`;
-export const resignation = "resignation";
+export const drawOfferEvent = (from: Color) => `draw-offer-${from}`;

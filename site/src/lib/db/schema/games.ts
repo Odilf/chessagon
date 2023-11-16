@@ -27,6 +27,7 @@ export const gameRelations = relations(games, ({ one, many }) => {
     }),
 
     moves: many(moves),
+    drawOffers: one(drawOffers),
   };
 });
 
@@ -58,3 +59,24 @@ export const moveRelations = relations(moves, ({ one }) => {
     }),
   };
 });
+
+export const drawOffers = sqliteTable(
+  "draw_offers",
+  {
+    gameId: text("game_id")
+      .references(() => games.id, { onDelete: "cascade" })
+      .notNull()
+      .primaryKey(),
+    from: integer("from")
+      .notNull(),
+  }
+);
+
+export const drawOffersRelations = relations(drawOffers, ({ one }) => {
+  return {
+    game: one(games, {
+      fields: [drawOffers.gameId],
+      references: [games.id],
+    }),
+  };
+})

@@ -1,8 +1,6 @@
 import { Color, type GameState } from "$engine/chessagon";
-import { gameFromMoves, type Move } from "$lib/wasmTypesGlue";
+import { gameFromMoves, type Move, type MoveTimestamped } from "$lib/wasmTypesGlue";
 import { writable } from "svelte/store";
-
-type MoveTimestamped = Move & { timestamp: Date };
 
 export function createGameStore(moves: MoveTimestamped[], preventDuplicateMoves = true) {
   moves;

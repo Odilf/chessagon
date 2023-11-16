@@ -24,13 +24,15 @@ export async function checkForTime(gameId: string) {
   });
 }
 
-export async function offerDraw(gameId: string, playerColor: Color) {
+export async function offerDraw(gameId: string) {
   return await fetch(`/play/${gameId}/offer-draw`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ color: playerColor }),
+  });
+}
+
+export async function acceptDraw(gameId: string) {
+  return await fetch(`/play/${gameId}/accept-draw`, {
+    method: "POST",
   });
 }
 
