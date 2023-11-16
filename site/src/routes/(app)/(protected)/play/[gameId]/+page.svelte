@@ -144,7 +144,7 @@
     method="post"
     action="?/cancelGame"
     use:enhance
-    class="flex flex-col items-center"
+    class="flex flex-col items-center my-auto"
   >
     <WaitingForPlayer
       timeControl={data.game.timeControl}

@@ -13,9 +13,7 @@
   export let host: { color: Color | null };
   export let gameId: string;
 
-  $: expectedDuration = `${
-    Math.round(timeControl.totalTime(40) * 4) / 4
-  } minutes`;
+  $: expectedDuration = `${Math.round(timeControl.totalTime(40))} minutes`;
 
   const dispatch = createEventDispatcher<{ cancel: void }>();
 
@@ -32,21 +30,20 @@
   });
 </script>
 
-<h1 class="text-2xl text-balance pt-8">Waiting for a player to join...</h1>
+<h1 class="text-2xl text-balance">Waiting for a player to join...</h1>
 
-<Spinner class="p-4 w-[100px] h-[100px]" />
+<Spinner class="p-4 m-4 h-2 aspect-square" />
 
-<div class="self-start">
-  Format: {timeControl.toString()} <br />
-  Expected duration: {expectedDuration} <br />
+<div class="flex flex-col items-center">
+  <div class="font-bold text-3xl">{timeControl.toString()}</div>
+  <div>~{expectedDuration}</div>
+  {#if host.color !== null}
+    <div class="text-xl mt-4">
+      You are playing as <span class="font-bold">{Color[host.color].toLowerCase()}</span>
+    </div>
+  {/if}
 </div>
 
-{#if host.color !== null}
-  <div>
-    You are playing as {Color[host.color].toLowerCase()}
-  </div>
-{/if}
-
-<button class="btn variant-soft-warning" on:click={() => dispatch("cancel")}>
+<button class="btn btn-xl variant-ghost-warning mt-8" on:click={() => dispatch("cancel")}>
   Cancel
 </button>
