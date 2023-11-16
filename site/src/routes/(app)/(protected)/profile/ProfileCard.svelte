@@ -11,7 +11,7 @@
   <div class="flex">
     <div class="w-full">
       <h1 class="h1 w-full">{username}</h1>
-      <h2 class="h3">{rating} ELO</h2>
+      <h2 class="h3">Rating: {rating}</h2>
       <div class="flex">
         <div class="flex-1" />
       </div>
@@ -29,5 +29,9 @@
 <style>
   .card {
     min-width: min(95vw, 500px);
+  }
+
+  h2 {
+    font-weight: 100;
   }
 </style>

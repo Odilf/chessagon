@@ -2,6 +2,7 @@ import { join } from "path";
 import type { Config } from "tailwindcss";
 import forms from "@tailwindcss/forms";
 import { skeleton } from "@skeletonlabs/tw-plugin";
+import { scrollbarGutter } from "tailwind-scrollbar-utilities";
 
 const config = {
   darkMode: "media",
@@ -25,6 +26,7 @@ const config = {
         ],
       },
     }),
+    scrollbarGutter()
   ],
 } satisfies Config;
 

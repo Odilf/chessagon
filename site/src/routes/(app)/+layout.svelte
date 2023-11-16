@@ -7,11 +7,11 @@
   };
 </script>
 
-<main class="w-screen overflow-x-hidden hide-scrollbar">
+<main class="scrollbar-gutter-stable">
   <Nav />
 
   <div
-    class="flex-1 flex flex-col items-center w-screen overflow-hidden"
+    class="flex-1 flex flex-col items-center w-screen"
     style:--height={navBarHeight.css}
   >
     <slot />
