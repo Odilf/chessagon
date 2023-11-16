@@ -17,8 +17,6 @@
   };
 </script>
 
-<!-- {#if show} -->
-<!-- {#if () !== null} -->
 <div
   class="{show
     ? 'opacity-100'
@@ -42,5 +40,4 @@
     </a>
   </div>
 </div>
-<!-- {/if} -->
-<!-- {/if} -->
+

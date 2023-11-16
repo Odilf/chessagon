@@ -3,23 +3,18 @@
   import type { GameStore } from "$lib/board/gameStore";
   import type { TimeControl } from "$lib/timeControls";
   import type { Color } from "$engine/chessagon";
-  import type { Move, MoveTimestamped } from "$lib/wasmTypesGlue";
   import Clock from "./Clock.svelte";
   import { getModalStore } from "@skeletonlabs/skeleton";
-  import type { Status } from "$lib/game/status";
   import { createEventDispatcher } from "svelte";
-  import todo from "ts-todo";
-
-  export let game: {
-    id: string;
-    status: Status;
-    moves: MoveTimestamped[];
-    timeControl: TimeControl;
-    playerColor: Color;
-  };
 
   export let gameStore: GameStore;
   export let drawOffer: { from: Color } | null;
+
+  export let inProgress: boolean;
+  export let timeControl: TimeControl;
+  export let playerColor: Color;
+
+  export let interactive: boolean;
 
   const modalStore = getModalStore();
 
@@ -48,7 +43,7 @@
   <div
     class="board-wrapper lg:px-2 order-2 lg:order-1 py-4 overflow-hidden flex-shrink"
   >
-    <BoardManaged on:move game={gameStore} playerColor={game.playerColor} />
+    <BoardManaged on:move game={gameStore} playerColor={playerColor} />
   </div>
 
   <div
@@ -56,19 +51,19 @@
   >
     <div class="pt-2">
       <Clock
-        moves={game.status.inProgress
+        moves={inProgress
           ? $gameStore.allMoves
           : $gameStore.viewingMoves}
-        timeControl={game.timeControl}
-        playerColor={game.playerColor}
+        timeControl={timeControl}
+        playerColor={playerColor}
         on:outOfTime
-        currentlyRunning={game.status.inProgress}
+        currentlyRunning={inProgress}
       />
     </div>
 
     <div class="w-full grid grid-cols-2 gap-2">
       {#if drawOffer}
-        {#if drawOffer.from === game.playerColor}
+        {#if drawOffer.from === playerColor}
           <button class="btn variant-soft-warning" on:click={() => dispatch("drawOfferRetraction")}>
             Retract offer
           </button>

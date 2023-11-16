@@ -1,11 +1,17 @@
 <script lang="ts">
-  import { Color } from "$engine/chessagon.js";
-  import Board from "$lib/board/Board.svelte";
-  import { gameFromMoves } from "$lib/wasmTypesGlue.js";
+  import LiveBoard from "$lib/board/LiveBoard.svelte";
+  import { createGameStore } from "$lib/board/gameStore.js";
 
   export let data;
 
-  let gameState = gameFromMoves(data.game.moves);
+  let gameStore = createGameStore(data.game.moves);
 </script>
 
-<Board playerColor={Color.White} />
+<LiveBoard
+  {gameStore}
+  inProgress={false}
+  timeControl={data.game.timeControl}
+  playerColor={data.playerColor}
+  interactive={false}
+  drawOffer={null}
+/>

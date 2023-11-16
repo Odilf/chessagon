@@ -15,7 +15,7 @@
   } from "$lib/pusher/events";
   import type { Channel } from "pusher-js";
   import { invalidateAll } from "$app/navigation";
-  import LiveBoard from "./LiveBoard.svelte";
+  import LiveBoard from "../../../../../lib/board/LiveBoard.svelte";
   import type { Move } from "$lib/wasmTypesGlue";
   import {
     acceptDraw,
@@ -90,12 +90,12 @@
     />
 
     <LiveBoard
-      game={{
-        ...data.game,
-        playerColor: data.playerColor,
-      }}
       {gameStore}
       drawOffer={data.game.drawOffers}
+      inProgress={data.game.status.inProgress}
+      timeControl={data.game.timeControl}
+      playerColor={data.playerColor}
+      interactive={true}
       on:move={({ detail: move }) => handleMove(move)}
       on:outOfTime={async () => {
         await checkForTime(data.game.id);
