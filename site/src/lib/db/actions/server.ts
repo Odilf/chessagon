@@ -16,15 +16,8 @@ import {
 } from "$lib/pusher/events";
 import { gameFromMoves, moveFromDatabase } from "$lib/wasmTypesGlue";
 import { Color as ColorEnum } from "$engine/chessagon";
-import {
-  getCodeFromStatus,
-  getStatusFromCode,
-  IN_PROGRESS,
-  type Status,
-} from "$lib/game/status";
+import { getCodeFromStatus, IN_PROGRESS } from "$lib/game/status";
 import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
-import { log } from "console";
-import todo from "ts-todo";
 
 export async function joinGame(
   userId: string,

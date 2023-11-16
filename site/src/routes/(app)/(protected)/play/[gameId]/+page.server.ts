@@ -17,7 +17,7 @@ export async function load({ parent, params }) {
       drawOffers: {
         columns: {
           from: true,
-        }
+        },
       },
     },
     // TODO: Order by index

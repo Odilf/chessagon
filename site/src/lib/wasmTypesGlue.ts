@@ -1,4 +1,4 @@
-import { GameState, Vector} from "$engine/chessagon";
+import { GameState, Vector } from "$engine/chessagon";
 
 export type Move = { origin: Vector; target: Vector };
 export type MoveTimestamped = Move & { timestamp: Date };

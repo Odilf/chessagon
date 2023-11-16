@@ -34,7 +34,7 @@
       day: "numeric",
     })}
     {@const statusMessage = formatStatus(
-      unwrap(getStatusFromCode(game.status_code))
+      unwrap(getStatusFromCode(game.status_code)),
     )}
     <li
       class="card py-4 variant-soft-secondary even:variant-soft-tertiary flex w-fit"

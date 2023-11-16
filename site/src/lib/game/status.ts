@@ -129,11 +129,11 @@ export function formatStatus(status: Status) {
     return {
       title: `${Color[status.winner]} won`,
       subtitle: formatWin(status.reason, status.winner),
-    }
+    };
   }
 
   return {
     title: "Draw",
     subtitle: formatDraw(status.reason),
-  }
+  };
 }

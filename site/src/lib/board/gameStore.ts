@@ -1,8 +1,15 @@
 import { Color, type GameState } from "$engine/chessagon";
-import { gameFromMoves, type Move, type MoveTimestamped } from "$lib/wasmTypesGlue";
+import {
+  gameFromMoves,
+  type Move,
+  type MoveTimestamped,
+} from "$lib/wasmTypesGlue";
 import { writable } from "svelte/store";
 
-export function createGameStore(moves: MoveTimestamped[], preventDuplicateMoves = true) {
+export function createGameStore(
+  moves: MoveTimestamped[],
+  preventDuplicateMoves = true,
+) {
   moves;
   let moveIndex = moves.length;
   const { set, update, subscribe } = writable<{
@@ -26,7 +33,7 @@ export function createGameStore(moves: MoveTimestamped[], preventDuplicateMoves 
     });
 
     setMoveIndex(moves.length);
-  }
+  };
 
   const setMoveIndex = (index: number = moves.length - 1) => {
     // Clamp

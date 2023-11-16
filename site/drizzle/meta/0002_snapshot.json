@@ -35,12 +35,8 @@
           "name": "user_key_user_id_users_id_fk",
           "tableFrom": "user_key",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -86,12 +82,8 @@
           "name": "user_session_user_id_users_id_fk",
           "tableFrom": "user_session",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -161,12 +153,8 @@
           "name": "draw_offers_game_id_games_id_fk",
           "tableFrom": "draw_offers",
           "tableTo": "games",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -234,12 +222,8 @@
           "name": "games_white_users_id_fk",
           "tableFrom": "games",
           "tableTo": "users",
-          "columnsFrom": [
-            "white"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["white"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -247,12 +231,8 @@
           "name": "games_black_users_id_fk",
           "tableFrom": "games",
           "tableTo": "users",
-          "columnsFrom": [
-            "black"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["black"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -319,22 +299,15 @@
           "name": "moves_game_id_games_id_fk",
           "tableFrom": "moves",
           "tableTo": "games",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "moves_index_game_id_pk": {
-          "columns": [
-            "game_id",
-            "index"
-          ]
+          "columns": ["game_id", "index"]
         }
       },
       "uniqueConstraints": {}

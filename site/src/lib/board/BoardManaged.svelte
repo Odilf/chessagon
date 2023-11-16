@@ -24,7 +24,7 @@
       $game.moveIndex === $game.allMoves.length &&
       selected.color === playerColor &&
       ($game.state.can_move(selected.position, position) ||
-        selected.position.toString() == position.toString()) // TODO: Uggo
+        selected.position.toString() == position.toString()), // TODO: Uggo
   );
 
   const dispath = createEventDispatcher<{

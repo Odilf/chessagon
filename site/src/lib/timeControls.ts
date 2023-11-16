@@ -101,12 +101,16 @@ export function calculateTimeElapsed(
   moves: { timestamp: Date }[],
   color: Color,
   currentlyRunning = true,
-): number {  
+): number {
   let timestamps = moves.map((move) => move.timestamp.getTime());
   timestamps[timestamps.length] = Date.now();
 
   let output = 0;
-  for (let i = 2; i <= (currentlyRunning ? moves.length : moves.length - 1); i += 2) {
+  for (
+    let i = 2;
+    i <= (currentlyRunning ? moves.length : moves.length - 1);
+    i += 2
+  ) {
     output += timestamps[i] - timestamps[i - 1];
   }
 

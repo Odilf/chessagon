@@ -60,17 +60,13 @@ export const moveRelations = relations(moves, ({ one }) => {
   };
 });
 
-export const drawOffers = sqliteTable(
-  "draw_offers",
-  {
-    gameId: text("game_id")
-      .references(() => games.id, { onDelete: "cascade" })
-      .notNull()
-      .primaryKey(),
-    from: integer("from")
-      .notNull(),
-  }
-);
+export const drawOffers = sqliteTable("draw_offers", {
+  gameId: text("game_id")
+    .references(() => games.id, { onDelete: "cascade" })
+    .notNull()
+    .primaryKey(),
+  from: integer("from").notNull(),
+});
 
 export const drawOffersRelations = relations(drawOffers, ({ one }) => {
   return {
@@ -79,4 +75,4 @@ export const drawOffersRelations = relations(drawOffers, ({ one }) => {
       references: [games.id],
     }),
   };
-})
+});

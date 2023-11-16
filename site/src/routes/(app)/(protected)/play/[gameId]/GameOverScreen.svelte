@@ -13,8 +13,8 @@
   let subtitle: string;
 
   $: if (!status.inProgress) {
-    ({ title, subtitle } = formatStatus(status))
-  };
+    ({ title, subtitle } = formatStatus(status));
+  }
 </script>
 
 <div
@@ -40,4 +40,3 @@
     </a>
   </div>
 </div>
-

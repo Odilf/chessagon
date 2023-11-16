@@ -19,13 +19,13 @@
       moves,
       playerColor,
       timeControl,
-      currentlyRunning
+      currentlyRunning,
     ),
     opponent: calculateTimeRemaining(
       moves,
       1 - playerColor,
       timeControl,
-      currentlyRunning
+      currentlyRunning,
     ),
   });
 

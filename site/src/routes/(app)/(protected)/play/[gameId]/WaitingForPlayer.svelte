@@ -39,11 +39,16 @@
   <div>~{expectedDuration}</div>
   {#if host.color !== null}
     <div class="text-xl mt-4">
-      You are playing as <span class="font-bold">{Color[host.color].toLowerCase()}</span>
+      You are playing as <span class="font-bold"
+        >{Color[host.color].toLowerCase()}</span
+      >
     </div>
   {/if}
 </div>
 
-<button class="btn btn-xl variant-ghost-warning mt-8" on:click={() => dispatch("cancel")}>
+<button
+  class="btn btn-xl variant-ghost-warning mt-8"
+  on:click={() => dispatch("cancel")}
+>
   Cancel
 </button>
