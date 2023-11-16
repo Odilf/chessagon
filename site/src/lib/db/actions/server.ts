@@ -109,7 +109,6 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
   const color: Color = game.moves.length % 2 === 0 ? "white" : "black";
 
   if (game[color] !== userId) {
-    console.log("not the game");
     throw error(403, "Not your turn");
   }
 

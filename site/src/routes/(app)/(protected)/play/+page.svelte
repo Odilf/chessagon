@@ -40,7 +40,7 @@
 
 <h1 class="h1 py-8">Select a time control</h1>
 
-<div class="grid grid-cols-4 gap-3">
+<div class="grid grid-cols-4 gap-3 px-4">
   {#each timeControls as timeControl}
     <button
       class="card btn h3 variant-outline-secondary flex flex-col w-full"
@@ -60,7 +60,7 @@
 
 <h2 class="h2 pt-8 pb-4">...or join an existing game</h2>
 
-<div class="flex flex-wrap gap-4">
+<div class="flex flex-wrap gap-4 px-4">
   {#each data.games ?? [] as game (game.id)}
     <form
       transition:fly={{ y: 50 }}

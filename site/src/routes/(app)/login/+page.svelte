@@ -9,16 +9,6 @@
   let tab = "login";
 </script>
 
-<!-- <button
-  class="btn variant-glass-primary"
-  on:click={async () => {
-    const result = await signIn("google");
-    console.log(result);
-  }}
->
-  Sign in with Google
-</button> -->
-
 <h1 class="h1 mb-10">Login</h1>
 
 <TabGroup class="pt-8">

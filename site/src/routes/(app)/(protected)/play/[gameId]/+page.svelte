@@ -50,33 +50,8 @@
     }
   }
 
-  function subscribeToInGameEvents() {
-    console.log("subscribing to in game events");
-    console.log("channel", channel);
-
-    if (!channel) {
-      throw new Error("unreachable (open issue if you encounter this)");
-    }
-    
-    channel.bind(gameFinishedEvent, () => {
-      console.log("game finished");
-
-      invalidateAll();
-    });
-
-    channel.bind(drawOfferEvent(1 - data.playerColor), () => {
-      console.log("draw offer received");
-      invalidateAll();
-    });
-
-    console.log(channel?.callbacks);
-    
-  }
-
   let channel: Channel | null = null;
   onMount(() => {
-    console.log("running onMount");
-    
     channel = getPusher().subscribe(gameChannel(unwrap(data.game.id)));
 
     channel.bind(newMoveEventName, (move: NewMoveEventData) => {
@@ -88,16 +63,17 @@
       });
     });
 
-    if (data.game.isActive) {
-      subscribeToInGameEvents();
-    } else {
-      channel.bind(gameStartedEvent, async () => {
-        console.log("game started");
-        
-        await invalidateAll();
-        subscribeToInGameEvents();
-      });
-    }
+    channel.bind(gameFinishedEvent, () => {
+      invalidateAll();
+    });
+
+    channel.bind(drawOfferEvent(1 - data.playerColor), () => {
+      invalidateAll();
+    });
+
+    channel.bind(gameStartedEvent, () => {
+      invalidateAll();
+    });
   });
 
   onDestroy(() => {
