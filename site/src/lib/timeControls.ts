@@ -30,8 +30,8 @@ export class TimeControl {
    */
   // TODO: Color
   public totalTimeAvailable(moveNumber: number, color: number) {
-    const increment = Math.ceil(moveNumber / 2 - color) * this.increment;
-    return this.minutes * 60 + increment;
+    const increments = Math.max(Math.ceil((moveNumber - color) / 2 - 1), 0);
+    return this.minutes * 60 + increments * this.increment;
   }
 
   public static fromDatabase({
@@ -106,7 +106,7 @@ export function calculateTimeElapsed(
   timestamps[timestamps.length] = Date.now();
 
   let output = 0;
-  for (let i = 2 - color; i <= (currentlyRunning ? moves.length : moves.length - 1); i += 2) {
+  for (let i = 2; i <= (currentlyRunning ? moves.length : moves.length - 1); i += 2) {
     output += timestamps[i] - timestamps[i - 1];
   }
 
