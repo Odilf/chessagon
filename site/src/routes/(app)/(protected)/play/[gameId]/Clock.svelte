@@ -47,8 +47,8 @@
   $: turn = moves.length % 2;
 </script>
 
-<div class="card variant-ghost-surface p-4 flex md:flex-col md:px-8">
-  <div class="{turn === playerColor && "opacity-50"} transition flex-1 font-bold text-2xl md:text-center -z-10">
+<div class="card variant-ghost-surface p-4 flex lg:flex-col lg:px-8">
+  <div class="{turn === playerColor && "opacity-50"} transition flex-1 font-bold text-2xl lg:text-center -z-10">
     Opponent
     <div class="font-mono font-thin text-3xl">
       {formatTime(time.opponent)}
@@ -57,8 +57,8 @@
 
   <div
     class="{turn === playerColor
-      ? 'md:rotate-90'
-      : 'md:-rotate-90 rotate-180'} w-fit transition-transform py-4 mx-4 md:mx-auto text-surface-400 -z-10"
+      ? 'lg:rotate-90'
+      : 'lg:-rotate-90 rotate-180'} w-fit transition-transform py-4 mx-4 lg:mx-auto text-surface-400 -z-10"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@
     </svg>
   </div>
 
-  <div class="{turn !== playerColor && "opacity-50"} transition flex-1 font-bold text-2xl text-right md:text-center -z-10">
+  <div class="{turn !== playerColor && "opacity-50"} transition flex-1 font-bold text-2xl text-right lg:text-center -z-10">
     You
     <div class="font-mono font-thin text-3xl">
       {formatTime(time.player)}

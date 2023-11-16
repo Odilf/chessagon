@@ -27,6 +27,7 @@
     drawOffer: void;
     drawAccepted: void;
     resignation: void;
+    drawOfferRetraction: void;
   }>();
 
   function resign() {
@@ -43,15 +44,15 @@
   }
 </script>
 
-<div class="w-full h-full flex flex-col md:flex-row justify-around md:gap-4">
+<div class="w-full h-full flex flex-col lg:flex-row justify-around lg:gap-4">
   <div
-    class="board-wrapper md:px-2 order-2 md:order-1 py-4 overflow-hidden flex-shrink"
+    class="board-wrapper lg:px-2 order-2 lg:order-1 py-4 overflow-hidden flex-shrink"
   >
     <BoardManaged on:move game={gameStore} playerColor={game.playerColor} />
   </div>
 
   <div
-    class="flex flex-col gap-2 md:gap-4 order-1 md:order-2 w-full md:w-fit px-4 my-auto"
+    class="flex flex-col gap-2 lg:gap-4 order-1 lg:order-2 w-full lg:w-72 px-4 my-auto"
   >
     <div class="pt-2">
       <Clock
@@ -65,26 +66,27 @@
       />
     </div>
 
-    <div class="w-full flex gap-2">
+    <div class="w-full grid grid-cols-2 gap-2">
       {#if drawOffer}
         {#if drawOffer.from === game.playerColor}
-          <button class="btn variant-soft-secondary flex-1" disabled>
-            Undo offer TODO
+          <button class="btn variant-soft-warning" on:click={() => dispatch("drawOfferRetraction")}>
+            Retract offer
           </button>
         {:else}
-          <button class="btn variant-ghost-warning flex-1" on:click={() => dispatch("drawAccepted")}>
+          <button class="btn variant-ghost-warning" on:click={() => dispatch("drawAccepted")}>
               Accept draw
           </button>
         {/if}
       {:else}
-        <button class="btn variant-soft-secondary flex-1" on:click={() => dispatch("drawOffer")}>
+        <button class="btn variant-soft-secondary" on:click={() => dispatch("drawOffer")}>
           Offer draw
         </button>
       {/if}
 
-      <button class="btn variant-soft-tertiary flex-1" on:click={resign}>
+      <button class="btn variant-soft-tertiary" on:click={resign}>
         Resign
       </button>
+
     </div>
   </div>
 </div>

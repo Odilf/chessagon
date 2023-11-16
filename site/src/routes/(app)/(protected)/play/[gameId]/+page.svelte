@@ -20,6 +20,7 @@
   import {
     acceptDraw,
     checkForTime,
+    retractDrawOffer,
     sendMove,
     sendResignation,
   } from "$lib/db/actions/client";
@@ -131,6 +132,10 @@
       }}
       on:drawAccepted={async () => {
         await acceptDraw(data.game.id);
+      }}
+      on:drawOfferRetraction={async () => {
+        await retractDrawOffer(data.game.id);
+        data.game.drawOffers = null;
       }}
     />
   </div>

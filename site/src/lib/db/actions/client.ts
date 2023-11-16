@@ -30,6 +30,12 @@ export async function offerDraw(gameId: string) {
   });
 }
 
+export async function retractDrawOffer(gameId: string) {
+  return await fetch(`/play/${gameId}/retract-draw-offer`, {
+    method: "POST",
+  });
+}
+
 export async function acceptDraw(gameId: string) {
   return await fetch(`/play/${gameId}/accept-draw`, {
     method: "POST",
