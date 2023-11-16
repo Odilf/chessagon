@@ -1,6 +1,6 @@
 import { Color } from "$engine/chessagon";
 
-export type WinReason = "checkmate" | "out_of_time";
+export type WinReason = "checkmate" | "out_of_time" | "resignation";
 export type DrawReason =
   | "agreement"
   | "stalemate"
@@ -28,11 +28,15 @@ export function getStatusFromCode(code: number): Status | null {
     case 100:
       return { inProgress: false, winner: Color.White, reason: "checkmate" };
     case 101:
+      return { inProgress: false, winner: Color.White, reason: "resignation" };
+    case 102:
       return { inProgress: false, winner: Color.White, reason: "out_of_time" };
 
     case 200:
       return { inProgress: false, winner: Color.Black, reason: "checkmate" };
     case 201:
+      return { inProgress: false, winner: Color.Black, reason: "resignation" };
+    case 202:
       return { inProgress: false, winner: Color.Black, reason: "out_of_time" };
 
     case 300:
@@ -68,8 +72,10 @@ export function getCodeFromStatus(status: Status): number {
   switch (status.reason) {
     case "checkmate":
       return status.winner === Color.White ? 100 : 200;
-    case "out_of_time":
+    case "resignation":
       return status.winner === Color.White ? 101 : 201;
+    case "out_of_time":
+      return status.winner === Color.White ? 102 : 202;
     case "agreement":
       return 300;
     case "stalemate":
@@ -85,16 +91,18 @@ export function getCodeFromStatus(status: Status): number {
 
 export const IN_PROGRESS = 0 as const;
 
-function formatWin(reason: WinReason, color: Color) {
+function formatWin(reason: WinReason, color: Color): string {
   switch (reason) {
     case "checkmate":
       return "By checkmate";
+    case "resignation":
+      return `${Color[1 - color]} resigned`;
     case "out_of_time":
       return `${Color[1 - color]} ran out of time`;
   }
 }
 
-function formatDraw(reason: DrawReason) {
+function formatDraw(reason: DrawReason): string {
   switch (reason) {
     case "agreement":
       return "By agreement";
