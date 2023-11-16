@@ -1,3 +1,4 @@
+import type { Color } from "$engine/chessagon";
 import type { Move } from "$lib/wasmTypesGlue";
 
 export async function sendMove(gameId: string, move: Move) {
@@ -19,6 +20,22 @@ export async function sendMove(gameId: string, move: Move) {
  */
 export async function checkForTime(gameId: string) {
   return await fetch(`/play/${gameId}/check-for-time`, {
+    method: "POST",
+  });
+}
+
+export async function offerDraw(gameId: string, playerColor: Color) {
+  return await fetch(`/play/${gameId}/offer-draw`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ color: playerColor }),
+  });
+}
+
+export async function sendResignation(gameId: string) {
+  return await fetch(`/play/${gameId}/resign`, {
     method: "POST",
   });
 }

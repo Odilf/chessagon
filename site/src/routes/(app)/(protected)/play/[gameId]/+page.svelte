@@ -13,6 +13,8 @@
     type NewMoveEventData,
     gameFinishedEvent,
     gameStartedEvent,
+    drawOffer,
+    resignation,
   } from "$lib/pusher/events";
   import type { Channel } from "pusher-js";
   import { invalidateAll } from "$app/navigation";
@@ -21,11 +23,13 @@
   import { checkForTime, sendMove } from "$lib/db/actions/client";
   import { createGameStore } from "$lib/board/gameStore";
   import { getPusher } from "$lib/pusher/client";
+  import { getToastStore } from "@skeletonlabs/skeleton";
+  import todo from "ts-todo";
 
   export let data;
 
   let gameStore = createGameStore(data.game.moves);
-  
+
   // $: status = getStatusFromCode($gameStore.state.status_code())!;
   $: status = getStatusFromCode(data.game.status_code)!;
 
@@ -42,6 +46,8 @@
     }
   }
 
+  const toastStore = getToastStore();
+
   let channel: Channel | null = null;
   onMount(() => {
     channel = getPusher().subscribe(gameChannel(unwrap(data.game.id)));
@@ -57,11 +63,19 @@
 
     channel.bind(gameStartedEvent, () => {
       invalidateAll();
-    })
+    });
 
     channel.bind(gameFinishedEvent, () => {
       invalidateAll();
     });
+
+    channel.bind(drawOffer(1 - data.playerColor), () => {
+      todo();
+    });
+
+    channel.bind(resignation, () => {
+      invalidateAll();
+    })
   });
 
   onDestroy(() => {

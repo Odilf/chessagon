@@ -5,13 +5,16 @@
   import type { Color } from "$engine/chessagon";
   import type { Move } from "$lib/wasmTypesGlue";
   import Clock from "./Clock.svelte";
-  import { getModalStore } from "@skeletonlabs/skeleton";
-  import todo from "ts-todo";
-  import { IN_PROGRESS } from "$lib/game/status";
+  import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+  import type { Status } from "$lib/game/status";
+  import {
+    offerDraw as sendOfferDraw,
+    sendResignation,
+  } from "$lib/db/actions/client";
 
   export let game: {
     id: string;
-    status_code: number;
+    status: Status;
     moves: (Move & { timestamp: Date })[];
     timeControl: TimeControl;
     playerColor: Color;
@@ -19,31 +22,30 @@
 
   export let gameStore: GameStore;
 
-  const modal = getModalStore();
+  const modalStore = getModalStore();
+  const toastStore = getToastStore();
 
   function offerDraw() {
-    modal.trigger({
+    modalStore.trigger({
       type: "confirm",
       title: "Are you sure you want to offer a draw?",
       modalClasses: "w-fit",
-      response: (response) => {
+      response: async (response) => {
         if (response) {
-          // TODO: Implement draw offer
-          todo();
+          await sendOfferDraw(game.id, game.playerColor);
         }
       },
     });
   }
 
   function resign() {
-    modal.trigger({
+    modalStore.trigger({
       type: "confirm",
       title: "Are you sure you want to resign?",
       modalClasses: "w-fit",
-      response: (response) => {
+      response: async (response) => {
         if (response) {
-          // TODO: Implement resigning
-          todo();
+          await sendResignation(game.id);
         }
       },
     });
@@ -62,11 +64,13 @@
   >
     <div class="pt-2">
       <Clock
-        moves={game.status_code === IN_PROGRESS ? $gameStore.allMoves : $gameStore.viewingMoves}
+        moves={game.status.inProgress
+          ? $gameStore.allMoves
+          : $gameStore.viewingMoves}
         timeControl={game.timeControl}
         playerColor={game.playerColor}
         on:outOfTime
-        currentlyRunning={game.status_code === IN_PROGRESS}
+        currentlyRunning={game.status.inProgress}
       />
     </div>
 
@@ -74,10 +78,7 @@
       <button class="btn variant-soft-secondary flex-1" on:click={offerDraw}>
         Offer draw
       </button>
-      <button
-        class="btn variant-soft-tertiary flex-1"
-        on:click={resign}
-      >
+      <button class="btn variant-soft-tertiary flex-1" on:click={resign}>
         Resign
       </button>
     </div>

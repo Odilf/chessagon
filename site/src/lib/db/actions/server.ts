@@ -6,6 +6,7 @@ import type { Color, Move } from "$lib/wasmTypesGlue";
 import { createId } from "@paralleldrive/cuid2";
 import { pusher } from "$lib/pusher/server";
 import {
+  drawOffer,
   gameChannel,
   gameFinishedEvent,
   gameStartedEvent,
@@ -23,6 +24,7 @@ import {
 } from "$lib/game/status";
 import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
 import { log } from "console";
+import todo from "ts-todo";
 
 export async function joinGame(
   userId: string,
@@ -223,4 +225,51 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
   pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 
   return true;
+}
+
+export async function offerDraw(userId: string, gameId: string, playerColor: ColorEnum) {
+  const game = await db.query.games.findFirst({
+    columns: {
+      white: true,
+      black: true,
+    },
+    where: and(eq(games.id, gameId), or(eq(games.white, userId), eq(games.black, userId))),
+  });
+
+  if (!game) {
+    throw error(400, "Can't access game");
+  }
+
+  todo();
+
+  pusher.trigger(gameChannel(gameId), drawOffer(playerColor), {});
+}
+
+export async function resign(userId: string, gameId: string) {
+  const game = await db.query.games.findFirst({
+    columns: {
+      white: true,
+      black: true,
+    },
+    where: and(eq(games.id, gameId), or(eq(games.white, userId), eq(games.black, userId))),
+  });
+
+  if (!game) {
+    throw error(400, "Can't access game");
+  }
+
+  const color = game.white === userId ? ColorEnum.White : ColorEnum.Black;
+
+  const status_code = getCodeFromStatus({
+    inProgress: false,
+    winner: 1 - color,
+    reason: "resignation",
+  });
+
+  await db
+    .update(games)
+    .set({ status_code })
+    .where(eq(games.id, gameId));
+
+  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 }

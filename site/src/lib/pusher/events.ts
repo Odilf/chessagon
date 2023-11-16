@@ -1,3 +1,5 @@
+import type { Color } from "$engine/chessagon";
+
 /**
  * Channel that contains general info on games (e.g.: what games )
  */
@@ -14,3 +16,5 @@ export type NewMoveEventData = {
 };
 
 export const gameFinishedEvent = "game-finished";
+export const drawOffer = (from: Color) => `draw-offer-${from}`;
+export const resignation = "resignation";
