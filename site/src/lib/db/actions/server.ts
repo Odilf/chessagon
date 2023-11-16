@@ -1,6 +1,6 @@
 import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "..";
-import { drawOffers, games, moves } from "../schema";
+import { drawOffers, games, moves, users } from "../schema";
 import { error, redirect } from "@sveltejs/kit";
 import type { Color, Move } from "$lib/wasmTypesGlue";
 import { createId } from "@paralleldrive/cuid2";
@@ -16,8 +16,9 @@ import {
 } from "$lib/pusher/events";
 import { gameFromMoves, moveFromDatabase } from "$lib/wasmTypesGlue";
 import { Color as ColorEnum } from "$engine/chessagon";
-import { getCodeFromStatus, IN_PROGRESS } from "$lib/game/status";
+import { getCodeFromStatus, type Status } from "$lib/game/status";
 import { TimeControl, calculateTimeRemaining } from "$lib/timeControls";
+import { updatedRating } from "$lib/game/elo";
 
 export async function joinGame(
   userId: string,
@@ -107,7 +108,6 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
 
   const colorEnum = color === "white" ? ColorEnum.White : ColorEnum.Black;
 
-  // TODO: Check if player run out of time
   const timeRemaining = calculateTimeRemaining(
     game.moves,
     colorEnum,
@@ -115,15 +115,11 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
   );
 
   if (timeRemaining < 0) {
-    const status_code = getCodeFromStatus({
+    await finishGame(gameId, {
       inProgress: false,
       winner: colorEnum,
       reason: "out_of_time",
     });
-
-    await db.update(games).set({ status_code }).where(eq(games.id, gameId));
-
-    pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 
     return;
   }
@@ -136,7 +132,7 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     throw error(400, "Invalid move");
   }
 
-  const insertMovePromise = db.insert(moves).values({
+  await db.insert(moves).values({
     index: game.moves.length,
     gameId: gameId,
     origin_x: origin.x,
@@ -145,23 +141,93 @@ export async function receiveMove(userId: string, gameId: string, move: Move) {
     target_y: target.y,
   });
 
-  const promises: Promise<unknown>[] = [insertMovePromise];
-
-  if (game.status_code !== IN_PROGRESS) {
-    const updateGameStatusPromise = db
-      .update(games)
-      .set({ status_code: game.status_code })
-      .where(eq(games.id, gameId));
-
-    promises.push(updateGameStatusPromise);
-  }
-
-  await Promise.all(promises);
-
   pusher.trigger(gameChannel(gameId), newMoveEventName, {
     origin,
     target,
   });
+}
+
+export async function finishGame(gameId: string, status: Status) {
+  if (status.inProgress) {
+    throw error(400, "Game is still in progress");
+  }
+
+  const status_code = getCodeFromStatus(status);
+
+  const updateStatusPromise = db
+    .update(games)
+    .set({ status_code })
+    .where(eq(games.id, gameId));
+
+  const updateEloPromise = async () => {
+    const elos = await db.query.games.findFirst({
+      columns: {
+        id: true,
+        white: true,
+        black: true,
+      },
+      where: eq(games.id, gameId),
+      with: {
+        white: {
+          columns: {
+            id: true,
+            rating: true,
+          },
+        },
+        black: {
+          columns: {
+            id: true,
+            rating: true,
+          },
+        },
+      },
+    });
+
+    if (!elos) {
+      throw error(400, "Can't access game");
+    }
+
+    let newRatingWinner: number;
+    let newRatingLoser: number;
+
+    if (status.winner === null) {
+      newRatingWinner = newRatingLoser = updatedRating(
+        { player: elos.white!.rating, opponent: elos.black!.rating },
+        0.5,
+      );
+    } else {
+      const winnerKey = status.winner === ColorEnum.White ? "white" : "black";
+      const loserKey =
+        1 - status.winner === ColorEnum.White ? "white" : "black";
+
+      const ratingWinner = elos[winnerKey]!.rating;
+      const ratingLoser = elos[loserKey]!.rating;
+
+      newRatingWinner = updatedRating(
+        { player: ratingWinner, opponent: ratingLoser },
+        1,
+      );
+      newRatingLoser = updatedRating(
+        { player: ratingLoser, opponent: ratingWinner },
+        0,
+      );
+    }
+
+    await Promise.all([
+      db
+        .update(users)
+        .set({ rating: newRatingWinner })
+        .where(eq(users.id, elos.white!.id)),
+      db
+        .update(users)
+        .set({ rating: newRatingLoser })
+        .where(eq(users.id, elos.black!.id)),
+    ]);
+  };
+
+  await Promise.all([updateStatusPromise, updateEloPromise()]);
+
+  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 }
 
 export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
@@ -199,15 +265,11 @@ export async function checkIfPlayerHasRunOutOfTime(gameId: string) {
     return false;
   }
 
-  const status_code = getCodeFromStatus({
+  await finishGame(gameId, {
     inProgress: false,
     winner: 1 - color,
     reason: "out_of_time",
   });
-
-  await db.update(games).set({ status_code }).where(eq(games.id, gameId));
-
-  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 
   return true;
 }
@@ -277,20 +339,20 @@ export async function acceptDraw(userId: string, gameId: string) {
       ? ("white" as const)
       : ("black" as const);
 
-  const status_code = getCodeFromStatus({
+  const result = await db.query.games.findFirst({
+    columns: { [acceptantColor]: true },
+    where: and(eq(games.id, gameId), eq(games[acceptantColor], userId)),
+  });
+
+  if (!result) {
+    throw error(400, "Can't find game");
+  }
+
+  await finishGame(gameId, {
     inProgress: false,
     winner: null,
     reason: "agreement",
   });
-
-  await db
-    .update(games)
-    .set({
-      status_code,
-    })
-    .where(and(eq(games.id, gameId), eq(games[acceptantColor], userId)));
-
-  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 }
 
 export async function resign(userId: string, gameId: string) {
@@ -311,13 +373,9 @@ export async function resign(userId: string, gameId: string) {
 
   const color = game.white === userId ? ColorEnum.White : ColorEnum.Black;
 
-  const status_code = getCodeFromStatus({
+  await finishGame(gameId, {
     inProgress: false,
     winner: 1 - color,
     reason: "resignation",
   });
-
-  await db.update(games).set({ status_code }).where(eq(games.id, gameId));
-
-  pusher.trigger(gameChannel(gameId), gameFinishedEvent, {});
 }

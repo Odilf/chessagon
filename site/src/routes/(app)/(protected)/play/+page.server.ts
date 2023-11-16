@@ -10,6 +10,7 @@ import { games as gamesTable } from "$lib/db/schema";
 export async function load({ parent }) {
   const { session } = await parent();
 
+  // TODO: Fetch all games and current games separately
   const games = await db.query.games.findMany({
     columns: {
       id: true,

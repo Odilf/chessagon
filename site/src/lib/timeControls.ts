@@ -105,12 +105,12 @@ export function calculateTimeElapsed(
   let timestamps = moves.map((move) => move.timestamp.getTime());
   timestamps[timestamps.length] = Date.now();
 
+  // let bound = Math.floor(moves.length / 2) * 2;
+  let bound = moves.length;
+  if (!currentlyRunning) bound -= 1;
+
   let output = 0;
-  for (
-    let i = 2;
-    i <= (currentlyRunning ? moves.length : moves.length - 1);
-    i += 2
-  ) {
+  for (let i = 2 - color; i <= bound; i += 2) {
     output += timestamps[i] - timestamps[i - 1];
   }
 

@@ -26,7 +26,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
   import { alignmentKey } from "./Board.svelte";
   import { Alignment, type Piece, Color } from "$engine";
