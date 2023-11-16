@@ -39,11 +39,15 @@
   }
 </script>
 
-<div class="w-full h-full flex flex-col lg:flex-row justify-around lg:gap-4">
+<div
+  class="w-full h-full flex flex-col lg:flex-row justify-around lg:gap-4 {interactive
+    ? ''
+    : 'pointer-events-none'}"
+>
   <div
     class="board-wrapper lg:px-2 order-2 lg:order-1 py-4 overflow-hidden flex-shrink"
   >
-    <BoardManaged on:move game={gameStore} playerColor={playerColor} />
+    <BoardManaged on:move game={gameStore} {playerColor} />
   </div>
 
   <div
@@ -51,38 +55,46 @@
   >
     <div class="pt-2">
       <Clock
-        moves={inProgress
-          ? $gameStore.allMoves
-          : $gameStore.viewingMoves}
-        timeControl={timeControl}
-        playerColor={playerColor}
+        moves={inProgress ? $gameStore.allMoves : $gameStore.viewingMoves}
+        {timeControl}
+        {playerColor}
         on:outOfTime
         currentlyRunning={inProgress}
       />
     </div>
 
-    <div class="w-full grid grid-cols-2 gap-2">
-      {#if drawOffer}
-        {#if drawOffer.from === playerColor}
-          <button class="btn variant-soft-warning" on:click={() => dispatch("drawOfferRetraction")}>
-            Retract offer
-          </button>
-        {:else}
-          <button class="btn variant-ghost-warning" on:click={() => dispatch("drawAccepted")}>
+    {#if interactive}
+      <div class="w-full grid grid-cols-2 gap-2">
+        {#if drawOffer}
+          {#if drawOffer.from === playerColor}
+            <button
+              class="btn variant-soft-warning"
+              on:click={() => dispatch("drawOfferRetraction")}
+            >
+              Retract offer
+            </button>
+          {:else}
+            <button
+              class="btn variant-ghost-warning"
+              on:click={() => dispatch("drawAccepted")}
+            >
               Accept draw
+            </button>
+          {/if}
+        {:else}
+          <button
+            class="btn variant-soft-secondary"
+            on:click={() => dispatch("drawOffer")}
+          >
+            Offer draw
           </button>
         {/if}
-      {:else}
-        <button class="btn variant-soft-secondary" on:click={() => dispatch("drawOffer")}>
-          Offer draw
+
+        <button class="btn variant-soft-tertiary" on:click={resign}>
+          Resign
         </button>
-      {/if}
-
-      <button class="btn variant-soft-tertiary" on:click={resign}>
-        Resign
-      </button>
-
-    </div>
+      </div>
+    {/if}
   </div>
 </div>
 
