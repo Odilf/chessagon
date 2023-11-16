@@ -4,7 +4,7 @@ import { IN_PROGRESS } from "$lib/game/status.js";
 export async function load({ parent }) {
   const { session } = await parent();
 
-  const games = await db.query.games.findMany({
+  const games = db.query.games.findMany({
     where: (games, { or, eq, and, ne }) =>
       and(
         or(eq(games.white, session.user.id), eq(games.black, session.user.id)),
@@ -21,6 +21,8 @@ export async function load({ parent }) {
 
   return {
     session,
-    games,
+    streamed: {
+      games,
+    }
   };
 }

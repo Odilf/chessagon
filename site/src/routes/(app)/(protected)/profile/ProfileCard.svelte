@@ -11,7 +11,7 @@
   <div class="flex">
     <div class="w-full">
       <h1 class="h1 w-full">{username}</h1>
-      <h2 class="h3">Rating: {rating}</h2>
+      <h2 class="h3">Rating: {rating.toFixed(0)}</h2>
       <div class="flex">
         <div class="flex-1" />
       </div>
