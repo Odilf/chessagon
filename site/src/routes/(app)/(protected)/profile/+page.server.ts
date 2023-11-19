@@ -23,6 +23,6 @@ export async function load({ parent }) {
     session,
     streamed: {
       games,
-    }
+    },
   };
 }

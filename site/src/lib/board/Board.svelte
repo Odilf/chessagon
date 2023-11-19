@@ -28,7 +28,8 @@
   import PieceComponent from "./Piece.svelte";
   import Tile from "./Tile.svelte";
 
-  export let board: { piece_at: (position: Vector) => Piece | undefined } = new Board();
+  export let board: { piece_at: (position: Vector) => Piece | undefined } =
+    new Board();
   export let highlightPositions: Vector[] = [];
   export let selected: Piece | null = null;
   export let playerColor: Color;

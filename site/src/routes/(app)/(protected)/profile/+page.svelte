@@ -28,7 +28,7 @@
 </main>
 
 {#await data.games()}
-  <div class="text-surface-400"> Loading games... </div>
+  <div class="text-surface-400">Loading games...</div>
 {:then games}
   <ul class="flex flex-wrap gap-8 justify-center max-w-4xl">
     {#each games as game}
@@ -37,7 +37,7 @@
         day: "numeric",
       })}
       {@const statusMessage = formatStatus(
-        unwrap(getStatusFromCode(game.status_code))
+        unwrap(getStatusFromCode(game.status_code)),
       )}
       <li
         class="card py-4 variant-soft-secondary even:variant-soft-tertiary flex w-fit"
