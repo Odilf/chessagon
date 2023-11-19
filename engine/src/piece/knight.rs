@@ -15,7 +15,7 @@ pub fn try_move(
 ) -> Result<Option<Vector>, IllegalMove> {
     let (dx, dy) = mov.delta().into();
 
-    // Slightly creeptic, but it works!
+    // Slightly cryptic, but it works!
     let can_move = matches!(dx * dy, 3  | -2 | 6 if dx != 6 && dy != 6);
 
     if !can_move {
