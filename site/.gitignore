@@ -2,5 +2,6 @@
 .svelte-kit
 node_modules
 .wasm-engine
-db.sqlite
+*.sqlite
+*.sqlite-wal
 .env
