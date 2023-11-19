@@ -83,7 +83,9 @@ pub struct Piece {
     pub color: Color,
 }
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Piece {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(color: Color, typ: PieceType, position: Vector) -> Piece {
         Piece {
             color,
@@ -91,7 +93,9 @@ impl Piece {
             position,
         }
     }
+}
 
+impl Piece {
     pub const fn value(&self) -> f32 {
         match self.typ {
             PieceType::Pawn => 1.0,
