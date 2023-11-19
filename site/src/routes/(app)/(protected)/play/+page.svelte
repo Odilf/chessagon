@@ -53,6 +53,7 @@
   <button
     class="card btn h3 variant-outline-secondary flex flex-col"
     on:click={() => todo()}
+    disabled
   >
     custom
   </button>
