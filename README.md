@@ -41,7 +41,7 @@ Speaking of which, the engine doesn't have any huge inneficiencies, but it could
 
 ## Web
 
-The web frontend is made with Svelte (and SvelteKit). All the logic can be run directly in the browser since the engine compiles to wasm. In fact, the server also uses the wasm engine to validate moves. This is because we want to use SvelteKit since it has a bunch of advantage and better DX but it assumes we're using JS on the backend. So, even though the server can run native code produced by Rust and we could do some FFI to run it from Node (or Deno or Bun), it's easier to just use wasm directly. This is the reason why wasm as a universal runtime is a cool shit.
+The web frontend is made with Svelte (and SvelteKit). All the logic can be run directly in the browser since the engine compiles to wasm. In fact, the server also uses the wasm engine to validate moves. This is because we want to use SvelteKit since it has a bunch of advantage and better DX but it assumes we're using JS on the backend. So, even though the server can run native code produced by Rust and we could do some FFI to run it from Node (or Deno or Bun), it's easier to just use wasm directly. This is the reason why wasm as a universal runtime is cool shit.
 
 In the website you can play games online with other people, with live updates, ELO, and all that jazz. 
 
