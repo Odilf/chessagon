@@ -5,6 +5,7 @@
     "wasm-once": "wasm-pack build --dev ../engine --out-dir ../site/.wasm-engine",
     "wasm": "find ../engine/ -name '*.rs' | entr pnpm wasm-once",
     "db-migrate": "pnpm exec drizzle-kit generate:sqlite && pnpm exec drizzle-kit push:sqlite",
+    "db-push-prod": "pnpm exec drizzle-kit push:sqlite -- --prod",
     "dev": "vite dev",
     "build": "vite build",
     "package": "svelte-kit package",
