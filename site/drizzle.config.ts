@@ -1,15 +1,16 @@
 import type { Config } from "drizzle-kit";
 import "dotenv/config";
 
-const url = process.argv.includes("--prod")
-  ? process.env.DATABASE_URL_PROD
-  : process.env.DATABASE_URL_DEV;
+const prod = process.argv.includes("--prod");
+
+const url = prod ? process.env.DATABASE_URL_PROD : process.env.DATABASE_URL_DEV;
 
 export default {
   schema: "./src/lib/db/schema.ts",
   out: "./drizzle",
-  driver: "libsql",
+  driver: prod ? "turso" : "libsql",
   dbCredentials: {
     url,
+    authToken: process.env.TURSO_AUTH_TOKEN,
   },
 } satisfies Config;
