@@ -2,7 +2,7 @@
   import BoardManaged from "$lib/board/BoardManaged.svelte";
   import type { GameStore } from "$lib/board/gameStore";
   import type { TimeControl } from "$lib/timeControls";
-  import type { Color } from "$engine/chessagon";
+  import type { Board, Color } from "$engine/chessagon";
   import Clock from "./Clock.svelte";
   import { getModalStore } from "@skeletonlabs/skeleton";
   import { createEventDispatcher } from "svelte";
@@ -38,6 +38,17 @@
     });
   }
 </script>
+
+<!-- @component
+The full daddy board. The only thing this doesn't do is fetch and broadcast.
+
+It dispatches events for:
+- Everything `BoardManaged` dispatches
+- drawOffer
+- drawAccepted
+- resignation
+- drawOfferRetraction
+ -->
 
 <div
   class="w-full h-full flex flex-col lg:flex-row justify-around lg:gap-4 {interactive

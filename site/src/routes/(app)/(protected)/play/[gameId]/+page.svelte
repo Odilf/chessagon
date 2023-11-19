@@ -15,7 +15,7 @@
   } from "$lib/pusher/events";
   import type { Channel } from "pusher-js";
   import { invalidateAll } from "$app/navigation";
-  import LiveBoard from "../../../../../lib/board/LiveBoard.svelte";
+  import FullBoard from "../../../../../lib/board/FullBoard.svelte";
   import type { Move } from "$lib/wasmTypesGlue";
   import {
     acceptDraw,
@@ -89,7 +89,7 @@
       overrideHide={$gameStore.moveIndex !== data.game.moves.length}
     />
 
-    <LiveBoard
+    <FullBoard
       {gameStore}
       drawOffer={data.game.drawOffers}
       inProgress={data.game.status.inProgress}

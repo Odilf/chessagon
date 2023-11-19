@@ -24,11 +24,11 @@
   import Svg from "$lib/utils/SVG.svelte";
   import { createEventDispatcher, setContext } from "svelte";
   import { writable } from "svelte/store";
-  import { fade, scale } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import PieceComponent from "./Piece.svelte";
   import Tile from "./Tile.svelte";
 
-  export let board = new Board();
+  export let board: { piece_at: (position: Vector) => Piece | undefined } = new Board();
   export let highlightPositions: Vector[] = [];
   export let selected: Piece | null = null;
   export let playerColor: Color;
@@ -79,7 +79,7 @@
 A completely inhert board. This means that it does not have any logic, doesn't highlight, and
 does not know about the game state. It just displays pieces.
 
-It has events for moves, but the moves may be invalid.
+It dispatches events for moves, but the moves are not necessarily invalid.
  -->
 
 <Svg size={new Vector(17, 19)}>

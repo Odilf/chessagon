@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LiveBoard from "$lib/board/LiveBoard.svelte";
+  import FullBoard from "$lib/board/FullBoard.svelte";
   import { createGameStore } from "$lib/board/gameStore.js";
 
   export let data;
@@ -7,7 +7,7 @@
   let gameStore = createGameStore(data.game.moves);
 </script>
 
-<LiveBoard
+<FullBoard
   {gameStore}
   inProgress={false}
   timeControl={data.game.timeControl}

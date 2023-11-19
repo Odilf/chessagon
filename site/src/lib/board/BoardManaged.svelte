@@ -9,6 +9,7 @@
     type WinReason,
   } from "$lib/game/status";
   import type { GameStore } from "./gameStore";
+  import { like } from "drizzle-orm";
 
   export let game: GameStore;
   export let playerColor: Color;
@@ -59,6 +60,15 @@
     dispath("move", move);
   }
 </script>
+
+<!-- @component
+A managed board which has all the logic for managing the game state and doing moves. However, it is just
+the board part, so it doesn't have a clock and doesn't handle any draw requests or offers or anything of the like.
+
+It dispatches events for moves, which are guaranteed to be valid. Also for invalid moves and results.
+
+Also handles history.
+ -->
 
 <svelte:window
   on:keydown={(e) => {
