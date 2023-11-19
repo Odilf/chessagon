@@ -7,7 +7,7 @@
   };
 </script>
 
-<main class="scrollbar-gutter-stable">
+<main class="scrollbar-gutter-stable w-screen h-screen">
   <Nav />
 
   <div
@@ -19,11 +19,6 @@
 </main>
 
 <style>
-  main {
-    height: 100dvh;
-    width: 100vw;
-  }
-
   main > :global(*) {
     --screen-without-nav: calc(100dvh - var(--height));
   }
