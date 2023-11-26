@@ -15,10 +15,10 @@
   </p>
 
   <p class="mb-2">
-    Part of the raison d'etre of this proejct is to explore this architecture
+    Part of the raison d'etre of this project is to explore this architecture
     and it worked mostly great, but there are a few papercut and annoyances to
     be dealt. I hoped I would be able to drop in Rust for every moderately
-    complex piece of logic but that doesn't seem feasiable, unfortunetaly.
+    complex piece of logic but that doesn't seem feasible, unfortunately.
   </p>
 
   <p class="mb-2">
