@@ -8,7 +8,11 @@ import { IN_PROGRESS } from "$lib/game/status.js";
 import { games as gamesTable } from "$lib/db/schema";
 
 export async function load({ parent }) {
+  console.log("loading +play.server.ts")
+
   const { session } = await parent();
+
+  console.log("session: ", JSON.stringify(session)) 
 
   // TODO: Fetch all games and current games separately
   const games = await db.query.games.findMany({
@@ -54,6 +58,8 @@ export async function load({ parent }) {
   if (userGame) {
     throw redirect(302, `/play/${userGame.id}`);
   }
+
+  console.log("Returning games on server: ", JSON.stringify(games));
 
   return {
     games,

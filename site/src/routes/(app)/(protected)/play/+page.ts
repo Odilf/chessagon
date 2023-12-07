@@ -2,6 +2,7 @@ import { Color } from "$engine/chessagon";
 import { TimeControl } from "$lib/timeControls";
 
 export async function load({ data }) {
+  console.log("Got data (in universal): ", JSON.stringify(data));
   return {
     games: data.games.map((game) => ({
       id: game.id,
