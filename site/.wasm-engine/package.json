@@ -1,0 +1,22 @@
+{
+  "name": "chessagon",
+  "collaborators": [
+    "Odilf <odysseas.maheras@gmail.com>"
+  ],
+  "description": "Hexagonal chess",
+  "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
+  "files": [
+    "chessagon_bg.wasm",
+    "chessagon.js",
+    "chessagon_bg.js",
+    "chessagon.d.ts"
+  ],
+  "module": "chessagon.js",
+  "homepage": "https://chessagon.odilf.com",
+  "types": "chessagon.d.ts",
+  "sideEffects": [
+    "./chessagon.js",
+    "./snippets/*"
+  ]
+}
