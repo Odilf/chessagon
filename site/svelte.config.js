@@ -8,14 +8,8 @@ const config = {
   // for more information about preprocessors
   preprocess: [preprocess(), vitePreprocess({})],
 
-  vitePlugin: {
-    // inspector: true,
-  },
-
   kit: {
-    adapter: adapter({
-      runtime: "nodejs18.x",
-    }),
+    adapter: adapter(),
     alias: {
       $engine: ".wasm-engine/",
     },
